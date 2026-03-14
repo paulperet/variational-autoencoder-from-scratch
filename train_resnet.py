@@ -3,17 +3,17 @@ import torchvision
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
-from torch.optim import SGD
+from torch.optim import SGD, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.resnet18 import ResNet18
 from transforms import train_transforms, test_transforms
 
 model = ResNet18(num_classes=10)
 
-batch_size = 256
+batch_size = 64
 
-dataset_train = ImageFolder("./data/imagenette2-320/train", transform=train_transforms)
-dataset_val = ImageFolder("./data/imagenette2-320/val", transform=test_transforms)
+dataset_train = ImageFolder("./data/toy-dataset/train", transform=train_transforms)
+dataset_val = ImageFolder("./data/toy-dataset/val", transform=test_transforms)
 
 train_loader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(dataset_val, batch_size=batch_size)

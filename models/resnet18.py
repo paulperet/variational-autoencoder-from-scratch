@@ -48,7 +48,6 @@ class ResNet18(nn.Module):
 
         # Output logits
         self.linear = nn.Linear(in_features=512, out_features=num_classes)
-        self.softmax = nn.Softmax()
     
     def forward(self, input_image):
         # First block, no residual connection
@@ -79,7 +78,6 @@ class ResNet18(nn.Module):
         output = nn.AvgPool2d(kernel_size=block_5.shape[-1]).forward(block_5)
 
         # Output logits
-        output = self.linear(output.view(-1, 512))
-        output = self.softmax(output)
+        output = self.linear(output.squeeze())
 
         return output
