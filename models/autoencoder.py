@@ -21,30 +21,31 @@ class Encoder(nn.Module):
         # First block parameters; stride 2 is used to downsample instead of pooling
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3)
         self.bn1 = nn.BatchNorm2d(num_features=64)
-        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2)
+        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         
         # Second block parameters
-        self.conv2_1 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+        self.conv2_1 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1)
         self.bn2_1 = nn.BatchNorm2d(num_features=64)
-        self.conv2_2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+        self.conv2_2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1)
         self.bn2_2 = nn.BatchNorm2d(num_features=64)
 
         # Third block parameters; stride 2 is used to downsample instead of pooling
-        self.conv3_1 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=3)
+        self.conv3_1 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1)
         self.bn3_1 = nn.BatchNorm2d(num_features=128)
-        self.conv3_2 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3)
+        self.conv3_2 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1)
         self.bn3_2 = nn.BatchNorm2d(num_features=128)
+        self.proj1 = torch.tensor((1,1,64,128))
 
         # Fourth block parameters; stride 2 is used to downsample instead of pooling
-        self.conv4_1 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=3)
+        self.conv4_1 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1)
         self.bn4_1 = nn.BatchNorm2d(num_features=256)
-        self.conv4_2 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+        self.conv4_2 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1)
         self.bn4_2 = nn.BatchNorm2d(num_features=256)
 
         # Fifth block parameters; stride 2 is used to downsample instead of pooling
-        self.conv5_1 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, stride=2, padding=3)
+        self.conv5_1 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, stride=2, padding=1)
         self.bn5_1 = nn.BatchNorm2d(num_features=512)
-        self.conv5_2 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv5_2 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
         self.bn5_2 = nn.BatchNorm2d(num_features=512)
 
         self.average_pool = nn.AvgPool2d(kernel_size=7)
@@ -54,27 +55,32 @@ class Encoder(nn.Module):
     def forward(self, input_image):
         # First block, no residual connection
         block_1 = self.ReLU(self.bn1(self.conv1(input_image)))
+        print(block_1.shape)
         block_1 = self.max_pool(block_1)
 
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.conv2_1(block_1)))
         block_2 = self.ReLU(self.bn2_2(self.conv2_2(block_2)))
-        block_2 = block_2 #+ block_1 # Residual connection
+        block_2 = block_2 #+ block_1                           # Residual connection; identity shortcut
+        print(block_2.shape)
 
         # Third block
         block_3 = self.ReLU(self.bn3_1(self.conv3_1(block_2)))
         block_3 = self.ReLU(self.bn3_2(self.conv3_2(block_3)))
-        block_3 = block_3 #+ block_2 # Residual connection
+        block_3 = block_3 #+ block_2 # Residual connection; projection shortcut
+        print(block_3.shape)
 
         # Fourth block
         block_4 = self.ReLU(self.bn4_1(self.conv4_1(block_3)))
         block_4 = self.ReLU(self.bn4_2(self.conv4_2(block_4)))
-        block_4 = block_4 #+ block_3 # Residual connection
+        block_4 = block_4 #+ block_3 # Residual connection; projection shortcut
+        print(block_4.shape)
 
         # Fifth block
         block_5 = self.ReLU(self.bn5_1(self.conv5_1(block_4)))
         block_5 = self.ReLU(self.bn5_2(self.conv5_2(block_5)))
-        block_5 = block_5 #+ block_4 # Residual connection
+        block_5 = block_5 #+ block_4 # Residual connection; projection shortcut
+        print(block_5.shape)
 
         # Average pool
         output = self.average_pool(block_5)
