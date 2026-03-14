@@ -48,9 +48,7 @@ class Encoder(nn.Module):
         self.conv5_2 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
         self.bn5_2 = nn.BatchNorm2d(num_features=512)
 
-        self.average_pool = nn.AvgPool2d(kernel_size=7)
-        self.flatten = nn.Flatten()
-        self.linear = nn.Linear(in_features=512*3*3, out_features=1000)
+        self.linear = nn.Linear(in_features=512, out_features=1000)
     
     def forward(self, input_image):
         # First block, no residual connection
@@ -61,7 +59,7 @@ class Encoder(nn.Module):
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.conv2_1(block_1)))
         block_2 = self.ReLU(self.bn2_2(self.conv2_2(block_2)))
-        block_2 = block_2 #+ block_1                           # Residual connection; identity shortcut
+        block_2 = block_2 + block_1                           # Residual connection; identity shortcut
         print(block_2.shape)
 
         # Third block
@@ -82,12 +80,13 @@ class Encoder(nn.Module):
         block_5 = block_5 #+ block_4 # Residual connection; projection shortcut
         print(block_5.shape)
 
-        # Average pool
-        output = self.average_pool(block_5)
+        # Global Average Pool; adapts to the last dim to allow any image input size
+        output = nn.AvgPool2d(kernel_size=block_5.shape[-1]).forward(block_5)
         print(output.shape)
 
         # Flattening the input
-        #output = self.flatten(output)
+        output = self.linear(output.view(512))
+        print(output.shape)
 
         return output
 
