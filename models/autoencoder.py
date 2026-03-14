@@ -34,7 +34,8 @@ class Encoder(nn.Module):
         self.bn3_1 = nn.BatchNorm2d(num_features=128)
         self.conv3_2 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1)
         self.bn3_2 = nn.BatchNorm2d(num_features=128)
-        self.proj1 = torch.tensor((1,1,64,128))
+
+        self.proj3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1, stride=2)
 
         # Fourth block parameters; stride 2 is used to downsample instead of pooling
         self.conv4_1 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1)
@@ -42,11 +43,15 @@ class Encoder(nn.Module):
         self.conv4_2 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1)
         self.bn4_2 = nn.BatchNorm2d(num_features=256)
 
+        self.proj4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1, stride=2)
+
         # Fifth block parameters; stride 2 is used to downsample instead of pooling
         self.conv5_1 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, stride=2, padding=1)
         self.bn5_1 = nn.BatchNorm2d(num_features=512)
         self.conv5_2 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
         self.bn5_2 = nn.BatchNorm2d(num_features=512)
+
+        self.proj5 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=2)
 
         self.linear = nn.Linear(in_features=512, out_features=1000)
     
@@ -58,26 +63,26 @@ class Encoder(nn.Module):
 
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.conv2_1(block_1)))
-        block_2 = self.ReLU(self.bn2_2(self.conv2_2(block_2)))
-        block_2 = block_2 + block_1                           # Residual connection; identity shortcut
+        block_2 = self.bn2_2(self.conv2_2(block_2))
+        block_2 = self.ReLU(block_2 + block_1)                # Residual connection; identity shortcut
         print(block_2.shape)
 
         # Third block
         block_3 = self.ReLU(self.bn3_1(self.conv3_1(block_2)))
-        block_3 = self.ReLU(self.bn3_2(self.conv3_2(block_3)))
-        block_3 = block_3 #+ block_2 # Residual connection; projection shortcut
+        block_3 = self.bn3_2(self.conv3_2(block_3))
+        block_3 = self.ReLU(block_3 + self.proj3(block_2)) # Residual connection; projection shortcut
         print(block_3.shape)
 
         # Fourth block
         block_4 = self.ReLU(self.bn4_1(self.conv4_1(block_3)))
-        block_4 = self.ReLU(self.bn4_2(self.conv4_2(block_4)))
-        block_4 = block_4 #+ block_3 # Residual connection; projection shortcut
+        block_4 = self.bn4_2(self.conv4_2(block_4))
+        block_4 = self.ReLU(block_4 + self.proj4(block_3)) # Residual connection; projection shortcut
         print(block_4.shape)
 
         # Fifth block
         block_5 = self.ReLU(self.bn5_1(self.conv5_1(block_4)))
-        block_5 = self.ReLU(self.bn5_2(self.conv5_2(block_5)))
-        block_5 = block_5 #+ block_4 # Residual connection; projection shortcut
+        block_5 = self.bn5_2(self.conv5_2(block_5))
+        block_5 = self.ReLU(block_5 + self.proj5(block_4)) # Residual connection; projection shortcut
         print(block_5.shape)
 
         # Global Average Pool; adapts to the last dim to allow any image input size
