@@ -84,7 +84,7 @@ for epoch in range(epochs):
     
     scheduler.step(val_total_loss/len(val_loader))
     
-    print(f'Epoch: {epoch+1}/{epochs}, Train loss: {running_loss/len(train_loader)}, Val loss: {val_total_loss}')
+    print(f'Epoch: {epoch+1}/{epochs}, Train loss: {running_loss/len(train_loader)}, Val loss: {val_total_loss/len(val_loader)}')
     print(f"Train accuracy: {train_accuracy.compute()}, Val accuracy: {val_accuracy.compute()}")
 
     train_accuracy.reset()
