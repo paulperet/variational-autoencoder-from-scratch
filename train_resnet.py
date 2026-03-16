@@ -9,6 +9,12 @@ from models.resnet18 import ResNet18
 from transforms import train_transforms, test_transforms
 from torchmetrics import Accuracy
 
+# Set device
+device = "cpu"
+pin_memory = True
+if torch.cuda.is_available():
+    device = "cuda"
+
 num_classes=10
 
 model = ResNet18(num_classes=num_classes)
