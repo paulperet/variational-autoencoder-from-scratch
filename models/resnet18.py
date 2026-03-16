@@ -47,6 +47,7 @@ class ResNet18(nn.Module):
         self.proj5 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=2)
 
         # Output logits
+        self.average_pool = nn.AvgPool2d(kernel_size=7)
         self.linear = nn.Linear(in_features=512, out_features=num_classes)
     
     def forward(self, input_image):
@@ -75,7 +76,7 @@ class ResNet18(nn.Module):
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
         # Global Average Pool; adapts to the last dim to allow any image input size
-        output = nn.AvgPool2d(kernel_size=block_5.shape[-1]).forward(block_5)
+        output = self.average_pool(block_5)
 
         # Output logits
         output = self.linear(output.squeeze())
