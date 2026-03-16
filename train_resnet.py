@@ -39,8 +39,8 @@ scheduler = ReduceLROnPlateau(optimizer, factor=1e-1)
 criterion = nn.CrossEntropyLoss()
 epochs = int((60 * 10**4) / (len(train_loader) / batch_size))
 
-train_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
-val_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+train_accuracy = Accuracy(task="multiclass", num_classes=num_classes).to(device)
+val_accuracy = Accuracy(task="multiclass", num_classes=num_classes).to(device)
 
 for epoch in range(epochs):
     running_loss = 0.0
