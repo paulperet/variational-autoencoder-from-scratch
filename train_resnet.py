@@ -33,9 +33,10 @@ val_loader = DataLoader(dataset_val, batch_size=batch_size)
 
 use_amp = True
 
-optimizer = SGD(model.parameters(), lr=1e-1, weight_decay=1e-4, momentum=0.9)
+optimizer = AdamW(model.parameters(), lr=1e-1, weight_decay=1e-4)
+#optimizer = SGD(model.parameters(), lr=1e-1, weight_decay=1e-4, momentum=0.9)
 scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
-scheduler = ReduceLROnPlateau(optimizer, factor=1e-1)
+scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 criterion = nn.CrossEntropyLoss()
 epochs = int((60 * 10**4) / (len(train_loader) / batch_size))
 
@@ -65,7 +66,7 @@ for epoch in range(epochs):
 
         optimizer.zero_grad(set_to_none=True)
 
-        print(f'Epoch: {epoch+1}/{epochs}, Iteration: {i+1}/{len(train_loader)}, Loss: {running_loss/(i+1)}')
+        #print(f'Epoch: {epoch+1}/{epochs}, Iteration: {i+1}/{len(train_loader)}, Loss: {running_loss/(i+1)}')
 
     model.eval()
 
