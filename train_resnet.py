@@ -17,7 +17,10 @@ if torch.cuda.is_available():
 
 num_classes=10
 
-model = ResNet18(num_classes=num_classes)
+model = ResNet18(num_classes=num_classes).to(device=device)
+
+if torch.cuda.device_count() > 1:
+    model = nn.parallel.DistributedDataParallel(model)
 print(f"Number of parameters : {sum(p.numel() for p in model.parameters())}, trainable parameters : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
 batch_size = 256
@@ -44,6 +47,8 @@ for epoch in range(epochs):
 
     for i, data in enumerate(train_loader):
         inputs, labels = data
+        inputs = inputs.to(device)
+        labels = labels.to(device)
 
         with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
             outputs = model(inputs)
@@ -70,6 +75,8 @@ for epoch in range(epochs):
     with torch.no_grad():
         for i, data in enumerate(val_loader):
             inputs, labels = data
+            inputs = inputs.to(device)
+            labels = labels.to(device)
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             val_total_loss += loss.item()
