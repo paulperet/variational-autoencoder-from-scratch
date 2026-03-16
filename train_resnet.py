@@ -58,7 +58,7 @@ for epoch in range(epochs):
 
         optimizer.zero_grad(set_to_none=True)
 
-        print(f'Epoch: {epoch}, Iteration: {i}, Loss: {running_loss/(i+1)}')
+        print(f'Epoch: {epoch}/{epochs}, Iteration: {i}/{len(train_loader)}, Loss: {running_loss/(i+1)}')
     
 
     scheduler.step(running_loss/len(train_loader))
@@ -75,7 +75,7 @@ for epoch in range(epochs):
             val_total_loss += loss.item()
             val_accuracy.update(outputs, labels)
     
-    print(f'Epoch: {epoch}, Train loss: {running_loss/len(train_loader)}, Val loss: {val_total_loss}')
+    print(f'Epoch: {epoch}/{epochs}, Train loss: {running_loss/len(train_loader)}, Val loss: {val_total_loss}')
     print(f"Train accuracy: {train_accuracy.compute()}, Val accuracy: {val_accuracy.compute()}")
 
     train_accuracy.reset()
