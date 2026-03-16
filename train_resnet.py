@@ -7,13 +7,17 @@ from torch.optim import SGD, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.resnet18 import ResNet18
 from transforms import train_transforms, test_transforms
+from torchmetrics import Accuracy
 
-model = ResNet18(num_classes=10)
+num_classes=10
 
-batch_size = 64
+model = ResNet18(num_classes=num_classes)
+print(f"Number of parameters : {sum(p.numel() for p in model.parameters())}, trainable parameters : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
-dataset_train = ImageFolder("./data/toy-dataset/train", transform=train_transforms)
-dataset_val = ImageFolder("./data/toy-dataset/val", transform=test_transforms)
+batch_size = 256
+
+dataset_train = ImageFolder("./data/imagenette2-320/train", transform=train_transforms)
+dataset_val = ImageFolder("./data/imagenette2-320/val", transform=test_transforms)
 
 train_loader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(dataset_val, batch_size=batch_size)
@@ -24,10 +28,14 @@ optimizer = SGD(model.parameters(), lr=1e-1, weight_decay=1e-4, momentum=0.9)
 scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
 scheduler = ReduceLROnPlateau(optimizer, factor=1e-1)
 criterion = nn.CrossEntropyLoss()
-epochs = int((60 * 10**4) / (len(train_loader) / 256))
+epochs = int((60 * 10**4) / (len(train_loader) / batch_size))
+
+train_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+val_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
 
 for epoch in range(epochs):
     running_loss = 0.0
+
     for i, data in enumerate(train_loader):
         inputs, labels = data
 
@@ -40,6 +48,7 @@ for epoch in range(epochs):
         scaler.update()
 
         running_loss += loss.item()
+        train_accuracy.update(outputs, labels)
 
         optimizer.zero_grad(set_to_none=True)
 
@@ -47,5 +56,21 @@ for epoch in range(epochs):
     
 
     scheduler.step(running_loss/len(train_loader))
+
+    model.eval()
+
+    val_total_loss = 0.0
+
+    with torch.no_grad():
+        for i, data in enumerate(val_loader):
+            inputs, labels = data
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            val_total_loss += loss.item()
+            val_accuracy.update(outputs, labels)
     
-    print(f'Epoch: {epoch}, Loss: {running_loss/len(train_loader)}')
+    print(f'Epoch: {epoch}, Train loss: {running_loss/len(train_loader)}, Val loss: {val_total_loss}')
+    print(f"Train accuracy: {train_accuracy.compute()}, Val accuracy: {val_accuracy.compute()}")
+
+    train_accuracy.reset()
+    val_accuracy.reset()
