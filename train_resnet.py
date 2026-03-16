@@ -45,6 +45,8 @@ val_accuracy = Accuracy(task="multiclass", num_classes=num_classes).to(device)
 for epoch in range(epochs):
     running_loss = 0.0
 
+    model.train()
+
     for i, data in enumerate(train_loader):
         inputs, labels = data
         inputs = inputs.to(device)
@@ -79,7 +81,6 @@ for epoch in range(epochs):
             val_total_loss += loss.item()
             val_accuracy.update(outputs, labels)
     
-
     scheduler.step(val_total_loss/len(val_loader))
     
     print(f'Epoch: {epoch+1}/{epochs}, Train loss: {running_loss/len(train_loader)}, Val loss: {val_total_loss}')
