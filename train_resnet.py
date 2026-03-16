@@ -19,8 +19,8 @@ num_classes=10
 
 model = ResNet18(num_classes=num_classes).to(device=device)
 
-if torch.cuda.device_count() > 1:
-    model = nn.parallel.DistributedDataParallel(model)
+#if torch.cuda.device_count() > 1:
+#    model = nn.parallel.DistributedDataParallel(model)
 print(f"Number of parameters : {sum(p.numel() for p in model.parameters())}, trainable parameters : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
 batch_size = 256
