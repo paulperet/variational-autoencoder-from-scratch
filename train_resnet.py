@@ -33,8 +33,8 @@ val_loader = DataLoader(dataset_val, batch_size=batch_size)
 
 use_amp = True
 
-optimizer = AdamW(model.parameters(), lr=1e-1, weight_decay=1e-4)
-#optimizer = SGD(model.parameters(), lr=1e-1, weight_decay=1e-4, momentum=0.9)
+#optimizer = AdamW(model.parameters(), lr=1e-1, weight_decay=1e-4)
+optimizer = SGD(model.parameters(), lr=1e-1, weight_decay=1e-4, momentum=0.9)
 scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
 scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 criterion = nn.CrossEntropyLoss()
