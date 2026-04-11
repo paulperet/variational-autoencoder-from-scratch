@@ -109,40 +109,37 @@ class Decoder(nn.Module):
         # First block parameters; stride 2 is used to downsample instead of pooling
         self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
         self.bn1_1 = nn.BatchNorm2d(num_features=512)
-        self.deconv1_2 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, stride=2, padding=1)
+        self.deconv1_2 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.bn1_2 = nn.BatchNorm2d(num_features=512)
 
-        self.proj1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=1, stride=2)
+        self.proj1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=1, stride=2, output_padding=1)
         
         # Second block parameters; stride 2 is used to downsample instead of pooling
         self.deconv2_1 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=3, padding=1)
         self.bn2_1 = nn.BatchNorm2d(num_features=256)
-        self.deconv2_2 = nn.ConvTranspose2d(in_channels=256, out_channels=256, stride=2, kernel_size=3, padding=1)
+        self.deconv2_2 = nn.ConvTranspose2d(in_channels=256, out_channels=256, stride=2, kernel_size=3, padding=1, output_padding=1)
         self.bn2_2 = nn.BatchNorm2d(num_features=256)
 
-        self.proj2 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=1, stride=2)
+        self.proj2 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=1, stride=2, output_padding=1)
 
         # Third block parameters; stride 2 is used to downsample instead of pooling
         self.deconv3_1 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
         self.bn3_1 = nn.BatchNorm2d(num_features=128)
-        self.deconv3_2 = nn.ConvTranspose2d(in_channels=128, out_channels=128, stride=2, kernel_size=3, padding=1)
+        self.deconv3_2 = nn.ConvTranspose2d(in_channels=128, out_channels=128, stride=2, kernel_size=3, padding=1, output_padding=1)
         self.bn3_2 = nn.BatchNorm2d(num_features=128)
 
-        self.proj3 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=1, stride=2)
+        self.proj3 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=1, stride=2, output_padding=1)
 
         # Fourth block parameters
         self.deconv4_1 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
         self.bn4_1 = nn.BatchNorm2d(num_features=64)
-        self.deconv4_2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1)
+        self.deconv4_2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.bn4_2 = nn.BatchNorm2d(num_features=64)
 
-        self.proj4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=1, stride=2)
+        self.proj4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=1, stride=2, output_padding=1)
 
         # Fifth block parameters; stride 2 is used to downsample instead of pooling
-        self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=7, stride=2, padding=3)
-        self.bn5_1 = nn.BatchNorm2d(num_features=64)
-
-        self.max_unpool = nn.MaxUnpool2d(kernel_size=3, stride=2, padding=1, return_indices=True)
+        self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=3, kernel_size=7, stride=2, padding=3, output_padding=1)
 
     def forward(self, bottleneck):
         # First block, no residual connection
@@ -153,30 +150,32 @@ class Decoder(nn.Module):
         block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
         block_1 = self.bn1_2(self.deconv1_2(block_1))
         block_1 = self.ReLU(block_1 + self.proj1(bottleneck_nn))  # Residual connection; projection shortcut
+        print(block_1.shape)
 
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.deconv2_1(block_1)))
         block_2 = self.bn2_2(self.deconv2_2(block_2))
         block_2 = self.ReLU(block_2 + self.proj2(block_1))        # Residual connection; projection shortcut
+        print(block_2.shape)
 
         # Third block
         block_3 = self.ReLU(self.bn3_1(self.deconv3_1(block_2)))
         block_3 = self.bn3_2(self.deconv3_2(block_3))
         block_3 = self.ReLU(block_3 + self.proj3(block_2))    # Residual connection; projection shortcut
+        print(block_3.shape)
 
         # Fourth block
         block_4 = self.ReLU(self.bn4_1(self.deconv4_1(block_3)))
         block_4 = self.bn4_2(self.deconv4_2(block_4))
         block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
+        print(block_4.shape)
 
         # Fifth block
-        block_5 = self.ReLU(self.bn5_1(self.deconv5_1(block_4))) # Last block; no residual connection
+        block_5 = self.deconv5_1(block_4) # Last block; no residual connection
 
-        # Global Average Pool; adapts to the last dim to allow any image input size
-        output = self.max_unpool(block_5)
-        print(output.shape)
+        print(block_5.shape)
 
-        return output
+        return block_5
 
 random_noise = torch.randn((32,3,224,224))
 #Encoder(bottleneck=256).forward(random_noise)
