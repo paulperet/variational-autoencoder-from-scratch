@@ -29,7 +29,7 @@ epochs = 10
 batch_size = 256
 use_amp = True
 
-optimizer = AdamW(model.parameters(), lr=1e-2, weight_decay=1e-4)
+optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
 scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
 scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 criterion = nn.MSELoss()
