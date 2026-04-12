@@ -26,7 +26,7 @@ print(f"Number of parameters : {sum(p.numel() for p in model.parameters())}, tra
 # Training settings
 
 epochs = 10
-batch_size = 16
+batch_size = 256
 use_amp = True
 
 optimizer = AdamW(model.parameters(), lr=1e-2, weight_decay=1e-4)
@@ -66,7 +66,7 @@ for epoch in range(epochs):
 
         optimizer.zero_grad(set_to_none=True)
 
-        print(f'Epoch: {epoch+1}/{epochs}, Iteration: {i+1}/{len(train_loader)}, Loss: {running_loss/(i+1)}')
+        #print(f'Epoch: {epoch+1}/{epochs}, Iteration: {i+1}/{len(train_loader)}, Loss: {running_loss/(i+1)}')
 
     model.eval()
 
