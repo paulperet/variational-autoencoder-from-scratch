@@ -1,0 +1,48 @@
+import argparse
+from pathlib import Path
+from train_autoencoder import train_autoencoder
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        required=True,
+        help="Number of training epochs",
+    )
+
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        required=True,
+        help="Batch size",
+    )
+
+    parser.add_argument(
+        "--bottleneck-size",
+        type=int,
+        required=True,
+        help="Number of dimensions of the bottleneck (latent space)",
+    )
+
+    parser.add_argument(
+        "--output-file",
+        type=Path,
+        required=True,
+        help="Name of the model",
+    )
+
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    train_autoencoder(
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        bottleneck_size=args.bottleneck_size,
+        output_file=args.output_file
+    )
