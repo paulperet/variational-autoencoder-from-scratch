@@ -43,7 +43,7 @@ def inference(checkpoint_path, image_path):
     fig.suptitle('Model Inference')
     ax1.imshow(inverse_transforms(input).permute(1,2,0))
     ax1.set_title("Input Image")
-    ax2.imshow(inverse_transforms(output).permute(1,2,0).detach().numpy())
+    ax2.imshow(inverse_transforms(output).permute(1,2,0).detach().cpu().numpy())
     ax2.set_title("Reconstructed Image")
 
     plt.show()
