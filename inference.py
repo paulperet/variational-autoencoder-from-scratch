@@ -33,7 +33,7 @@ def inference(checkpoint_path, image_path):
 
     # Convert the image to 224x244
     image = Image.open(image_path)
-    input = test_transforms(image)
+    input = test_transforms(image).to(device)
 
     # Pass our image to the model
     output = model(input.unsqueeze(0)).squeeze()
