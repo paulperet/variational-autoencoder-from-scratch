@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.functional as F
 
 class AutoEncoder(nn.Module):
-    def __init__(self, bottleneck=1024):
+    def __init__(self, bottleneck=512):
         super(AutoEncoder, self).__init__()
 
         self.encoder = Encoder(bottleneck=bottleneck)
@@ -60,7 +60,7 @@ class Encoder(nn.Module):
 
         # Output logits
         self.average_pool = nn.AvgPool2d(kernel_size=7)
-        self.linear = nn.Linear(in_features=512*7*7, out_features=bottleneck)
+        self.linear = nn.Linear(in_features=512, out_features=bottleneck)
 
     def forward(self, input_image):
         # First block, no residual connection
@@ -88,7 +88,7 @@ class Encoder(nn.Module):
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
         # Global Average Pool; works only if current input size is 7x7 meaning that input image is 224x224
-        output = block_5.view(-1,512*7*7) # self.average_pool(block_5)
+        output = self.average_pool(block_5) #  block_5.view(-1,512*7*7)
 
         # Output logits
         output = self.linear(output.squeeze())
@@ -103,9 +103,12 @@ class Decoder(nn.Module):
         # Activation function
         self.ReLU = nn.ReLU()
 
-        self.linear = nn.Linear(in_features=bottleneck, out_features=512*7*7)
+        self.linear = nn.Linear(in_features=bottleneck, out_features=512)
 
-        # First block parameters; stride 2 is used to downsample instead of pooling
+        # Inverse global pooling; upsampling 1x1 to 7x7
+        self.up = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=7, stride=7)
+
+        # First block parameters; stride 2 is used to upsample
         self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
         self.bn1_1 = nn.BatchNorm2d(num_features=512)
         self.deconv1_2 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, stride=2, padding=1, output_padding=1)
@@ -113,7 +116,7 @@ class Decoder(nn.Module):
 
         self.proj1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=1, stride=2, output_padding=1)
         
-        # Second block parameters; stride 2 is used to downsample instead of pooling
+        # Second block parameters; stride 2 is used to upsample
         self.deconv2_1 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=3, padding=1)
         self.bn2_1 = nn.BatchNorm2d(num_features=256)
         self.deconv2_2 = nn.ConvTranspose2d(in_channels=256, out_channels=256, stride=2, kernel_size=3, padding=1, output_padding=1)
@@ -121,7 +124,7 @@ class Decoder(nn.Module):
 
         self.proj2 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=1, stride=2, output_padding=1)
 
-        # Third block parameters; stride 2 is used to downsample instead of pooling
+        # Third block parameters; stride 2 is used to upsample
         self.deconv3_1 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
         self.bn3_1 = nn.BatchNorm2d(num_features=128)
         self.deconv3_2 = nn.ConvTranspose2d(in_channels=128, out_channels=128, stride=2, kernel_size=3, padding=1, output_padding=1)
@@ -137,18 +140,20 @@ class Decoder(nn.Module):
 
         self.proj4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=1, stride=2, output_padding=1)
 
-        # Fifth block parameters; stride 2 is used to downsample instead of pooling
+        # Fifth block parameters; stride 2 is used to upsample
         self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=3, kernel_size=7, stride=2, padding=3, output_padding=1)
 
     def forward(self, bottleneck):
         # First block, no residual connection
 
         bottleneck_nn = self.linear(bottleneck)
-        bottleneck_nn = bottleneck_nn.view(-1,512,7,7)
+        bottleneck_nn = bottleneck_nn.view(-1,512,1,1)
 
-        block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
+        up = self.up(bottleneck_nn)
+
+        block_1 = self.ReLU(self.bn1_1(self.deconv1_1(up)))
         block_1 = self.bn1_2(self.deconv1_2(block_1))
-        block_1 = self.ReLU(block_1 + self.proj1(bottleneck_nn))  # Residual connection; projection shortcut
+        block_1 = self.ReLU(block_1 + self.proj1(up))  # Residual connection; projection shortcut
 
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.deconv2_1(block_1)))
