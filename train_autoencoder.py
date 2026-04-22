@@ -30,6 +30,9 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
 
     model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
 
+    if torch.cuda.device_count() > 1:
+        model = nn.DataParallel(model)
+
     # Print number of parameters
 
     print(f"Number of parameters : {sum(p.numel() for p in model.parameters())}, trainable parameters : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
