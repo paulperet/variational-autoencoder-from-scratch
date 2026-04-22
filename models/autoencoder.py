@@ -88,7 +88,7 @@ class Encoder(nn.Module):
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
         # Global Average Pool; works only if current input size is 7x7 meaning that input image is 224x224
-        output = self.average_pool(block_5)
+        output = block_5.view(-1,512*7*7) # self.average_pool(block_5)
 
         # Output logits
         output = self.linear(output.squeeze())
@@ -166,7 +166,7 @@ class Decoder(nn.Module):
         block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
 
         # Fifth block
-        block_5 = self.deconv5_1(block_4) # Last block; no residual connection
+        block_5 = self.ReLU(self.deconv5_1(block_4)) # Last block; no residual connection
 
         return block_5
 
