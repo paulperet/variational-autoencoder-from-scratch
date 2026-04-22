@@ -20,7 +20,7 @@ if torch.cuda.is_available():
     device = "cuda"
     use_amp=True
 
-def train_autoencoder(epochs, batch_size, bottleneck_size, output_file):
+def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset):
 
     # Create the output path
 
@@ -44,8 +44,11 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file):
 
     # Dataset & DataLoader Creation
 
-    dataset_train = ImageFolder("./data/imagenette2-320/train", transform=train_transforms)
-    dataset_val = ImageFolder("./data/imagenette2-320/val", transform=test_transforms)
+    train_path = dataset / Path("train")
+    val_path = dataset / Path("val")
+
+    dataset_train = ImageFolder(train_path, transform=train_transforms)
+    dataset_val = ImageFolder(val_path, transform=test_transforms)
 
     train_loader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(dataset_val, batch_size=batch_size)

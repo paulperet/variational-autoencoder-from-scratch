@@ -33,6 +33,13 @@ def parse_args():
         help="Name of the model",
     )
 
+    parser.add_argument(
+        "--dataset-folder",
+        type=Path,
+        required=True,
+        help="main dataset folder, following Pytorch ImageFolder structure",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -44,5 +51,6 @@ if __name__ == "__main__":
         epochs=args.epochs,
         batch_size=args.batch_size,
         bottleneck_size=args.bottleneck_size,
-        output_file=args.output_file
+        output_file=args.output_file,
+        dataset=args.dataset_folder,
     )

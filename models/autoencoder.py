@@ -103,10 +103,7 @@ class Decoder(nn.Module):
         # Activation function
         self.ReLU = nn.ReLU()
 
-        self.linear = nn.Linear(in_features=bottleneck, out_features=512)
-
-        # Inverse global pooling; upsampling 1x1 to 7x7
-        self.up = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=7, stride=7)
+        self.linear = nn.Linear(in_features=bottleneck, out_features=512*7*7)
 
         # First block parameters; stride 2 is used to upsample
         self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
@@ -147,13 +144,11 @@ class Decoder(nn.Module):
         # First block, no residual connection
 
         bottleneck_nn = self.linear(bottleneck)
-        bottleneck_nn = bottleneck_nn.view(-1,512,1,1)
+        bottleneck_nn = bottleneck_nn.view(-1,512,7,7)
 
-        up = self.up(bottleneck_nn)
-
-        block_1 = self.ReLU(self.bn1_1(self.deconv1_1(up)))
+        block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
         block_1 = self.bn1_2(self.deconv1_2(block_1))
-        block_1 = self.ReLU(block_1 + self.proj1(up))  # Residual connection; projection shortcut
+        block_1 = self.ReLU(block_1 + self.proj1(bottleneck_nn))  # Residual connection; projection shortcut
 
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.deconv2_1(block_1)))
