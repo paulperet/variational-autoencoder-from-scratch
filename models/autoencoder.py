@@ -166,7 +166,7 @@ class Decoder(nn.Module):
         block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
 
         # Fifth block
-        block_5 = self.ReLU(self.deconv5_1(block_4)) # Last block; no residual connection
+        block_5 = self.deconv5_1(block_4) # Last block; no residual connection
 
         return block_5
 
