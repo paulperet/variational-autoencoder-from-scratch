@@ -98,11 +98,18 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
                 # Save model weights and bottleneck size if improvement
                 if val_total_loss < min_val_loss:
                     min_val_loss = val_total_loss
-                    torch.save({
-                        'model_state_dict': model.state_dict(),
-                        'optimizer_state_dict': optimizer.state_dict(),
-                        'bottleneck_size': bottleneck_size
-                        }, output_path)
+                    if torch.cuda.device_count() > 1:
+                        torch.save({
+                            'model_state_dict': model.module.state_dict(),
+                            'optimizer_state_dict': optimizer.state_dict(),
+                            'bottleneck_size': bottleneck_size
+                            }, output_path)
+                    else:
+                        torch.save({
+                            'model_state_dict': model.state_dict(),
+                            'optimizer_state_dict': optimizer.state_dict(),
+                            'bottleneck_size': bottleneck_size
+                            }, output_path)
 
         
         scheduler.step(val_total_loss/len(val_loader))

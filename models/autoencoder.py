@@ -60,10 +60,11 @@ class Encoder(nn.Module):
 
         # Output logits
         self.average_pool = nn.AvgPool2d(kernel_size=7)
-        self.linear = nn.Linear(in_features=512, out_features=bottleneck)
+        self.linear = nn.Linear(in_features=512*7*7, out_features=bottleneck)
 
     def forward(self, input_image):
         # First block, no residual connection
+        
         block_1 = self.ReLU(self.bn1(self.conv1(input_image)))
         block_1 = self.max_pool(block_1)
 
@@ -88,7 +89,7 @@ class Encoder(nn.Module):
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
         # Global Average Pool; works only if current input size is 7x7 meaning that input image is 224x224
-        output = self.average_pool(block_5) #  block_5.view(-1,512*7*7)
+        output = block_5.view(-1,512*7*7) # self.average_pool(block_5)
 
         # Output logits
         output = self.linear(output.squeeze())
@@ -165,7 +166,7 @@ class Decoder(nn.Module):
         block_4 = self.bn4_2(self.deconv4_2(block_4))
         block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
 
-        # Fifth block
+        # Fifth block; avoid using ReLU and ImageNet normalization together (images contain negative values after transforms)
         block_5 = self.deconv5_1(block_4) # Last block; no residual connection
 
         return block_5
