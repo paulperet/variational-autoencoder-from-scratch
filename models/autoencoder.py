@@ -60,7 +60,7 @@ class Encoder(nn.Module):
 
         # Output logits
         self.average_pool = nn.AvgPool2d(kernel_size=7)
-        self.linear = nn.Linear(in_features=512, out_features=bottleneck)
+        self.linear = nn.Linear(in_features=512*7*7, out_features=bottleneck)
 
     def forward(self, input_image):
         # First block, no residual connection
