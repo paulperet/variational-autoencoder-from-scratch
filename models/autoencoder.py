@@ -15,6 +15,15 @@ class AutoEncoder(nn.Module):
         x = self.decoder(x)
         return x
     
+    # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
+    def encode(self, x):
+        """Takes input images x (batched) and returns their latent representation (or features)"""
+        return self.encoder(x)
+    
+    def decode(self, x):
+        """Reconstruct the image using the features x"""
+        return self.decoder(x)
+    
 class Encoder(nn.Module):
     """Encoder that follows the 18-layer ResNet architecture"""
     def __init__(self, bottleneck):
@@ -59,7 +68,6 @@ class Encoder(nn.Module):
         self.proj5 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=2)
 
         # Output logits
-        self.average_pool = nn.AvgPool2d(kernel_size=7)
         self.linear = nn.Linear(in_features=512*7*7, out_features=bottleneck)
 
     def forward(self, input_image):
@@ -88,8 +96,8 @@ class Encoder(nn.Module):
         block_5 = self.bn5_2(self.conv5_2(block_5))
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
-        # Global Average Pool; works only if current input size is 7x7 meaning that input image is 224x224
-        output = block_5.view(-1,512*7*7) # self.average_pool(block_5)
+        # Global Average Pool is replaced by a linear projection of block_5
+        output = block_5.view(-1,512*7*7)
 
         # Output logits
         output = self.linear(output.squeeze())
