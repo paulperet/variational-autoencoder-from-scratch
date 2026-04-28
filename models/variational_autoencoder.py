@@ -103,8 +103,9 @@ class Encoder(nn.Module):
         # Global Average Pool is replaced by a linear projection of block_5
         output = block_5.view(-1,512*7*7)
 
-        # Reparametrization trick: 
-        output = self.mean(output.squeeze()) + self.variance(output.squeeze()) * torch.normal(mean=torch.zeros(1, self.bottleneck), std=torch.ones(1, self.bottleneck))
+        # Reparametrization trick:
+        batch_size = output.shape[0]
+        output = self.mean(output.squeeze()) + self.variance(output.squeeze()) * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck))
 
         return output
     

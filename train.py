@@ -6,6 +6,13 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "--model",
+        type=str,
+        required=False,
+        help="Model to train: ae, vae or b-vae (default: ae)",
+    )
+
+    parser.add_argument(
         "--epochs",
         type=int,
         required=True,
@@ -48,6 +55,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     train_autoencoder(
+        model_choice=args.model,
         epochs=args.epochs,
         batch_size=args.batch_size,
         bottleneck_size=args.bottleneck_size,
