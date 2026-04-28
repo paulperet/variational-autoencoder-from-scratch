@@ -104,8 +104,8 @@ class Encoder(nn.Module):
         output = block_5.view(-1,512*7*7)
 
         # Reparametrization trick:
-        batch_size = output.detach().cpu().shape[0]
-        output = self.mean(output.squeeze()) + self.variance(output.squeeze()) * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck))
+        batch_size = output.detach().shape[0]
+        output = self.mean(output.squeeze()) + self.variance(output.squeeze()) * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck)).to("cuda" if torch.cuda.is_available() else "cpu")
 
         return output
     
