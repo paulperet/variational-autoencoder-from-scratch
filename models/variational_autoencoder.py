@@ -103,11 +103,12 @@ class Encoder(nn.Module):
         # Global Average Pool is replaced by a linear projection of block_5
         output = block_5.view(-1,512*7*7)
 
-        # Reparametrization trick:
+        # We generate mean and std vectors:
         batch_size = output.detach().shape[0]
         mean = self.mean(output.squeeze())
-        std = self.ReLU(self.std(output.squeeze()))
+        std = self.std(output.squeeze()).exp()
 
+        # Reparametrization trick:
         output = mean + std * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck)).to("cuda" if torch.cuda.is_available() else "cpu")
 
         return output, mean, std
