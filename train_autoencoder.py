@@ -108,7 +108,12 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 outputs = model(inputs)
-                loss = criterion(outputs, inputs)
+                loss = reconstruction_loss(outputs, inputs)
+                # Variational encoders add a regularization term that computes the KL divergence between the encoder
+                # distribution and the normal distribution
+                if model_choice == "vae":
+                    loss += regularization_loss(torch.normal(mean, std), torch.normal(torch.zeros(mean.shape),torch.ones(std.shape)))
+
                 val_total_loss += loss.item()
                 
                 # Save model weights and bottleneck size if improvement
