@@ -4,6 +4,7 @@ import torch
 import torchvision
 import torch.nn as nn
 from models.autoencoder import AutoEncoder
+from models.variational_autoencoder import VariationalAutoEncoder
 from transforms import test_transforms, inverse_transforms
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -18,7 +19,7 @@ if torch.cuda.is_available():
     device = "cuda"
     use_amp=True
 
-def generate_image_unguided(checkpoint_path):
+def generate_image_unguided(checkpoint_path, model_type="ae"):
     """Generate an image from a random point in the feature space"""
 
     # Load the checkpoint
@@ -29,10 +30,15 @@ def generate_image_unguided(checkpoint_path):
 
     # Create the model
 
-    model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
+    if model_type == "vae":
+        model = VariationalAutoEncoder(bottleneck=bottleneck_size).to(device=device)
+    else:
+        model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
+    
     model.load_state_dict(checkpoint["model_state_dict"])
 
     # Sample a random vector in the latent space
+
     random_vector = torch.randn(1, bottleneck_size)
 
     # Pass our vector to the model
@@ -43,17 +49,20 @@ def generate_image_unguided(checkpoint_path):
     plt.imshow(inverse_transforms(output).permute(1,2,0).detach().cpu().numpy())
     plt.show()
 
-def generate_image_guided(checkpoint_path, image_path):
+def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
     """Generate an image starting from a encoded image"""
     # Load the checkpoint
 
     checkpoint = torch.load(checkpoint_path, map_location=device)
     bottleneck_size = checkpoint["bottleneck_size"]
-    
 
     # Create the model
 
-    model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
+    if model_type == "vae":
+        model = VariationalAutoEncoder(bottleneck=bottleneck_size).to(device=device)
+    else:
+        model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
+    
     model.load_state_dict(checkpoint["model_state_dict"])
 
     # Convert the image to 224x244
@@ -101,6 +110,13 @@ def parse_args():
         help="Name of the model",
     )
 
+    parser.add_argument(
+        "--model",
+        type=str,
+        required=False,
+        help="Model: ae, vae or b-vae (default: ae)",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -112,8 +128,10 @@ if __name__ == "__main__":
         generate_image_guided(
             checkpoint_path=args.checkpoint,
             image_path=args.image_path,
+            model_type=args.model,
         )
     else:
         generate_image_unguided(
-            checkpoint_path=args.checkpoint
+            checkpoint_path=args.checkpoint,
+            model_type=args.model,
         )

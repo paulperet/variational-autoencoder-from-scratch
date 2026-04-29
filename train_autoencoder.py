@@ -31,6 +31,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
 
     if model_choice == "vae":
         model = VariationalAutoEncoder(bottleneck=bottleneck_size).to(device=device)
+        print(model)
     else:
         model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
 
@@ -46,7 +47,8 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
     optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
-    criterion = nn.MSELoss()
+    reconstruction_loss = nn.MSELoss()
+    regularization_loss = nn.CrossEntropyLoss()
     min_val_loss = math.inf
 
     # Dataset & DataLoader Creation
@@ -73,8 +75,18 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
             labels = labels.to(device)
 
             with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
-                outputs = model(inputs)
-                loss = criterion(outputs, inputs)
+                # Pass our input through the model to get our output
+                if model_choice == "vae":
+                    outputs, mean, std = model(inputs)
+                else:
+                    outputs = model(inputs)
+
+                loss = reconstruction_loss(outputs, inputs)
+
+                # Variational encoders add a regularization term that computes the KL divergence between the encoder
+                # distribution and the normal distribution
+                if model_choice == "vae":
+                    loss += regularization_loss(torch.normal(mean, std), torch.normal(torch.zeros(mean.shape),torch.ones(std.shape)))
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)

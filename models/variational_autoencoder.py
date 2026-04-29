@@ -11,9 +11,9 @@ class VariationalAutoEncoder(nn.Module):
         self.decoder = Decoder(bottleneck=bottleneck)
 
     def forward(self, x):
-        x = self.encoder(x)
+        x, mean, std = self.encoder(x)
         x = self.decoder(x)
-        return x
+        return x, mean, std
     
     # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
     def encode(self, x):
@@ -72,7 +72,7 @@ class Encoder(nn.Module):
 
         # Return the mean and variance vectors of the normal distribution to sample from
         self.mean = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
-        self.variance = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
+        self.std = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
 
     def forward(self, input_image):
         # First block, no residual connection
@@ -105,9 +105,12 @@ class Encoder(nn.Module):
 
         # Reparametrization trick:
         batch_size = output.detach().shape[0]
-        output = self.mean(output.squeeze()) + self.variance(output.squeeze()) * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck)).to("cuda" if torch.cuda.is_available() else "cpu")
+        mean = self.mean(output.squeeze())
+        std = self.ReLU(self.std(output.squeeze()))
 
-        return output
+        output = mean + std * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck)).to("cuda" if torch.cuda.is_available() else "cpu")
+
+        return output, mean, std
     
 class Decoder(nn.Module):
     """Decoder that mimic the 18-layer ResNet architecture in reverse"""
