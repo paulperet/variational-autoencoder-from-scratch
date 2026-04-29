@@ -48,7 +48,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
     reconstruction_loss = nn.MSELoss()
-    def regularization_loss(mean, std):
+    def regularization_loss(mean):
         std=torch.ones(mean.shape).to(device) # Might be needed to use this simplified expression
         return torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
     
