@@ -47,8 +47,12 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
     optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
+
     reconstruction_loss = nn.MSELoss()
-    regularization_loss = nn.CrossEntropyLoss()
+    def regularization_loss(mean, std):
+        std=torch.ones(mean.shape) # Might be needed to use this simplified expression
+        return torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
+    
     min_val_loss = math.inf
 
     # Dataset & DataLoader Creation
@@ -82,11 +86,12 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                     outputs = model(inputs)
 
                 loss = reconstruction_loss(outputs, inputs)
+                print(loss.item())
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
-                    loss += torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
+                    loss += regularization_loss(mean, std)
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -116,7 +121,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
-                    loss += torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
+                    loss += regularization_loss(mean, std)
 
                 val_total_loss += loss.item()
                 
