@@ -31,7 +31,6 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
 
     if model_choice == "vae":
         model = VariationalAutoEncoder(bottleneck=bottleneck_size).to(device=device)
-        print(model)
     else:
         model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
 
@@ -73,7 +72,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
 
         model.train()
 
-        for i, data in enumerate(train_loader):
+        for _, data in enumerate(train_loader):
             inputs, labels = data
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -81,7 +80,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
             with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=use_amp):
                 # Pass our input through the model to get our output
                 if model_choice == "vae":
-                    outputs, mean, std = model(inputs)
+                    outputs, mean = model(inputs)
                 else:
                     outputs = model(inputs)
 
@@ -91,7 +90,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
-                    loss += regularization_loss(mean, std)
+                    loss += regularization_loss(mean)
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -114,14 +113,14 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 labels = labels.to(device)
                 
                 if model_choice == "vae":
-                    outputs, mean, std = model(inputs)
+                    outputs, mean = model(inputs)
                 else:
                     outputs = model(inputs)
                 loss = reconstruction_loss(outputs, inputs)
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
-                    loss += regularization_loss(mean, std)
+                    loss += regularization_loss(mean)
 
                 val_total_loss += loss.item()
                 

@@ -11,9 +11,9 @@ class VariationalAutoEncoder(nn.Module):
         self.decoder = Decoder(bottleneck=bottleneck)
 
     def forward(self, x):
-        x, mean, std = self.encoder(x)
+        x, mean = self.encoder(x)
         x = self.decoder(x)
-        return x, mean, std
+        return x, mean
     
     # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
     def encode(self, x):
@@ -109,9 +109,9 @@ class Encoder(nn.Module):
         std = self.std(output.squeeze()).exp()
 
         # Reparametrization trick:
-        output = mean + std * torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck)).to("cuda" if torch.cuda.is_available() else "cpu")
+        output = mean + torch.normal(mean=torch.zeros(batch_size, self.bottleneck), std=torch.ones(batch_size, self.bottleneck)).to("cuda" if torch.cuda.is_available() else "cpu")
 
-        return output, mean, std
+        return output, mean
     
 class Decoder(nn.Module):
     """Decoder that mimic the 18-layer ResNet architecture in reverse"""
