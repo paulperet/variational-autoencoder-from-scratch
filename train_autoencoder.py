@@ -86,7 +86,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
-                    loss += regularization_loss(torch.normal(mean, std), torch.normal(torch.zeros(mean.shape),torch.ones(std.shape)))
+                    loss += torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -116,7 +116,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
-                    loss += regularization_loss(torch.normal(mean, std), torch.normal(torch.zeros(mean.shape),torch.ones(std.shape)))
+                    loss += torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
 
                 val_total_loss += loss.item()
                 
