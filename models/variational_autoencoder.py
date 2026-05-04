@@ -11,8 +11,8 @@ class VariationalAutoEncoder(nn.Module):
         self.decoder = Decoder(bottleneck=bottleneck)
 
     def forward(self, x):
-        x, mean, std = self.encoder(x)
-        x = self.decoder(x)
+        z, mean, std = self.encoder(x)
+        x = self.decoder(z)
         return x, mean, std
     
     # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
@@ -20,9 +20,9 @@ class VariationalAutoEncoder(nn.Module):
         """Takes input images x (batched) and returns their latent representation (or features)"""
         return self.encoder(x)[0]
     
-    def decode(self, x):
+    def decode(self, z):
         """Reconstruct the image using the features x"""
-        return self.decoder(x)
+        return self.decoder(z)
     
 class Encoder(nn.Module):
     """Encoder that follows the 18-layer ResNet architecture"""
@@ -101,19 +101,18 @@ class Encoder(nn.Module):
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
         # Global Average Pool is replaced by a linear projection of block_5
-        output = block_5.view(-1,512*7*7)
+        block_5 = block_5.view(-1,512*7*7)
 
         # We generate mean and std vectors:
-        batch_size = output.detach().shape[0]
-        mean = self.mean(output.squeeze())
+        mean = self.mean(block_5.squeeze())
 
         # We say that the generated value is log(std**2) so that we can generate negative values
-        std = self.std(output.squeeze()).exp().sqrt()
+        std = self.std(block_5.squeeze()).exp().sqrt()
 
         # Reparametrization trick:
-        output = mean + std * torch.randn_like(std)
+        z = mean + std * torch.randn_like(std)
 
-        return output, mean, std
+        return z, mean, std
     
 class Decoder(nn.Module):
     """Decoder that mimic the 18-layer ResNet architecture in reverse"""

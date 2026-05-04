@@ -49,7 +49,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
 
     reconstruction_loss = nn.MSELoss()
     def regularization_loss(mean, std):
-        return -torch.mean((1/2)*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=1))
+        return torch.mean((-1/2)*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
     
     min_val_loss = math.inf
 
@@ -71,7 +71,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
 
         model.train()
 
-        for i, data in enumerate(train_loader):
+        for _, data in enumerate(train_loader):
             inputs, labels = data
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -106,7 +106,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
         val_total_loss = 0.0
 
         with torch.no_grad():
-            for i, data in enumerate(val_loader):
+            for _, data in enumerate(val_loader):
                 inputs, labels = data
                 inputs = inputs.to(device)
                 labels = labels.to(device)
