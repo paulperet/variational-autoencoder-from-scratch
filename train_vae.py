@@ -40,7 +40,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
     # Training settings
 
-    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-3)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
@@ -85,7 +85,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
-                loss += 0.001 * regularization_loss(mean, std)
+                loss += 0.0001 * regularization_loss(mean, std)
                 running_regularization_loss += loss.item() - current_reconstruction_loss
 
             scaler.scale(loss).backward()
