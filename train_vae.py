@@ -79,12 +79,14 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset):
                 outputs, mean, std = model(inputs)
 
                 loss = reconstruction_loss(outputs, inputs)
+
+                current_reconstruction_loss = loss.item()
                 running_reconstruction_loss += loss.item()
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 loss += regularization_loss(mean, std)
-                running_regularization_loss += loss.item() - running_reconstruction_loss
+                running_regularization_loss += loss.item() - current_reconstruction_loss
                     
 
             scaler.scale(loss).backward()
@@ -107,12 +109,13 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset):
                 outputs, mean, std = model(inputs)
 
                 loss = reconstruction_loss(outputs, inputs)
+                val_current_reconstruction_loss = loss.item()
                 val_reconstruction_loss += loss.item()
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 loss += regularization_loss(mean, std)
-                val_regularization_loss += loss.item() - val_reconstruction_loss
+                val_regularization_loss += loss.item() - val_current_reconstruction_loss
                 
             # Save model weights and bottleneck size if improvement
             if (val_reconstruction_loss + val_regularization_loss) < min_val_loss:
@@ -133,4 +136,4 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset):
         
         scheduler.step(loss.item()/len(val_loader))
         
-        print(f'Epoch: {epoch+1}/{epochs}, Train loss: {running_reconstruction_loss/len(train_loader)}/{running_regularization_loss/len(train_loader)}, Val loss: {val_reconstruction_loss/len(val_loader)}/{val_regularization_loss/len(val_loader)}')
+        print(f'Epoch: {epoch+1}/{epochs}, Train loss: {(running_reconstruction_loss/len(train_loader)):2f}/{(running_regularization_loss/len(train_loader)):2f}, Val loss: {(val_reconstruction_loss/len(val_loader)):2f}/{(val_regularization_loss/len(val_loader)):2f}')
