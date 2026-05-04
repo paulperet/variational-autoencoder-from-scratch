@@ -49,7 +49,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
 
     reconstruction_loss = nn.MSELoss()
     def regularization_loss(mean, std):
-        return torch.mean(torch.sum(-(1/2)*(1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1) + torch.mean(torch.log(torch.normal(mean, std))))
+        return -torch.mean((1/2)*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
     
     min_val_loss = math.inf
 
@@ -89,6 +89,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                 # distribution and the normal distribution
                 if model_choice == "vae":
                     loss += regularization_loss(mean, std)
+                print(loss.item())
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
