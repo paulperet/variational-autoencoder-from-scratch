@@ -46,7 +46,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
     reconstruction_loss = nn.MSELoss()
     def regularization_loss(mean, std):
-        return torch.mean((-1/2)*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
+        return torch.mean(-0.5*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
     
     min_val_loss = math.inf
 
@@ -85,10 +85,9 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
-                unscaled_regularization_loss = regularization_loss(mean, std)
-                running_regularization_loss += unscaled_regularization_loss.item() - current_reconstruction_loss
-                loss += ((epoch-int((20/100)*epochs))/(epochs-int((20/100)*epochs)) if epoch > int((20/100)*epochs) else 0) * unscaled_regularization_loss
-
+                loss += regularization_loss(mean, std)
+                running_regularization_loss += loss.item() - current_reconstruction_loss
+                
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
