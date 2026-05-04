@@ -73,7 +73,6 @@ class Encoder(nn.Module):
         # Return the mean and variance vectors of the normal distribution to sample from
         self.mean = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
         self.std = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
-        torch.nn.init.zeros_(self.std.weight)
 
     def forward(self, input_image):
         # First block, no residual connection
