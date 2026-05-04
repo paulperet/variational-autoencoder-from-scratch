@@ -80,7 +80,10 @@ def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
     output_sample_close_points = model.decode(features).squeeze()
 
     # Get the default reconstruction
-    output_default = model(input.unsqueeze(0)).squeeze()
+    if model_type == "vae":
+        output_default = model(input.unsqueeze(0))[0].squeeze()
+    else:
+        output_default = model(input.unsqueeze(0)).squeeze()
     
     # Plot the input and reconstructed image
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
