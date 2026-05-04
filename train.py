@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 from train_autoencoder import train_autoencoder
+from train_vae import train_vae
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -54,11 +55,20 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    train_autoencoder(
-        model_choice=args.model,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-        bottleneck_size=args.bottleneck_size,
-        output_file=args.output_file,
-        dataset=args.dataset_folder,
-    )
+    if args.model == "ae":
+        train_autoencoder(
+            model_choice=args.model,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            bottleneck_size=args.bottleneck_size,
+            output_file=args.output_file,
+            dataset=args.dataset_folder,
+        )
+    else:
+        train_vae(
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            bottleneck_size=args.bottleneck_size,
+            output_file=args.output_file,
+            dataset=args.dataset_folder,
+        )
