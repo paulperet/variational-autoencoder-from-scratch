@@ -84,12 +84,12 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset,
                     outputs = model(inputs)
 
                 loss = reconstruction_loss(outputs, inputs)
-                print(loss.item())
+                print(f"Reconstruction: {loss.item()}")
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
                 if model_choice == "vae":
                     loss += regularization_loss(mean, std)
-                print(loss.item())
+                print(f"Regularization: {loss.item()}")
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
