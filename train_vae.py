@@ -139,4 +139,4 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
         
         scheduler.step(loss.item()/len(val_loader))
         
-        print(f'Epoch: {epoch+1}/{epochs}, Train loss: {(running_reconstruction_loss/len(train_loader)):.2f}/{(running_regularization_loss/len(train_loader)):.2f}, Val loss: {(val_reconstruction_loss/len(val_loader)):.2f}/{(val_regularization_loss/len(val_loader)):.2f}, learning rate: {scheduler.get_lr()}')
+        print(f'Epoch: {epoch+1}/{epochs}, Train loss: {(running_reconstruction_loss/len(train_loader)):.2f}/{(running_regularization_loss/len(train_loader)):.2f}, Val loss: {(val_reconstruction_loss/len(val_loader)):.2f}/{(val_regularization_loss/len(val_loader)):.2f}, learning rate: {scheduler.get_last_lr}')
