@@ -48,6 +48,13 @@ def parse_args():
         help="main dataset folder, following Pytorch ImageFolder structure",
     )
 
+    parser.add_argument(
+        "--learning-rate",
+        type=float,
+        required=False,
+        help="learning rate",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -71,4 +78,5 @@ if __name__ == "__main__":
             bottleneck_size=args.bottleneck_size,
             output_file=args.output_file,
             dataset=args.dataset_folder,
+            learning_rate=args.learning_rate,
         )
