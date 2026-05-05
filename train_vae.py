@@ -6,7 +6,7 @@ from torchvision.datasets import ImageFolder
 from torch.optim import SGD, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.autoencoder import AutoEncoder
-from models.variational_autoencoder import VariationalAutoEncoder
+from models.variational_autoencoder_small_decoder import VariationalAutoEncoder
 from transforms import train_transforms, test_transforms
 import math
 import os
