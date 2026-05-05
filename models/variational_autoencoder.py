@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.functional as F
 
 class VariationalAutoEncoder(nn.Module):
-    def __init__(self, bottleneck=512):
+    def __init__(self, bottleneck=4096):
         super(VariationalAutoEncoder, self).__init__()
 
         self.encoder = Encoder(bottleneck=bottleneck)
