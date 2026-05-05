@@ -125,15 +125,19 @@ class Decoder(nn.Module):
         # Activation function
         self.ReLU = nn.ReLU()
 
-        self.linear = nn.Linear(in_features=self.bottleneck, out_features=512*7*7)
+        self.linear = nn.Linear(in_features=self.bottleneck, out_features=512*3*3)
 
         # First block parameters; stride 2 is used to upsample
-        self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=64, kernel_size=3, padding=1)
+        self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=64, kernel_size=3, stride=3, padding=1, output_padding=0)
         self.bn1_1 = nn.BatchNorm2d(num_features=64)
-        self.deconv1_2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.bn1_2 = nn.BatchNorm2d(num_features=64)
 
-        self.proj1 = nn.ConvTranspose2d(in_channels=512, out_channels=64, kernel_size=1, stride=2, output_padding=1)
+         # First block parameters; stride 2 is used to upsample
+        self.deconv2_1 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, padding=1)
+        self.bn2_1 = nn.BatchNorm2d(num_features=64)
+        self.deconv2_2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.bn2_2 = nn.BatchNorm2d(num_features=64)
+
+        self.proj2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=1, stride=2, output_padding=1)
         
         # Fifth block parameters; stride 2 is used to upsample
         self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=3, kernel_size=3, stride=17, padding=1, output_padding=2)
@@ -142,14 +146,15 @@ class Decoder(nn.Module):
         # First block, no residual connection
 
         bottleneck_nn = self.linear(bottleneck)
-        bottleneck_nn = bottleneck_nn.view(-1,512,7,7)
+        bottleneck_nn = bottleneck_nn.view(-1,512,3,3)
 
         block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
-        block_1 = self.bn1_2(self.deconv1_2(block_1))
-        block_1 = self.ReLU(block_1 + self.proj1(bottleneck_nn))  # Residual connection; projection shortcut
 
+        block_2 = self.ReLU(self.bn2_1(self.deconv2_1(block_1)))
+        block_2 = self.bn2_2(self.deconv2_2(block_2))
+        block_2 = self.ReLU(block_2 + self.proj2(block_1))  # Residual connection; projection shortcut
         # Fifth block; avoid using ReLU and ImageNet normalization together (images contain negative values after transforms)
-        block_5 = self.deconv5_1(block_1) # Last block; no residual connection
+        block_5 = self.deconv5_1(block_2) # Last block; no residual connection
 
         return block_5
 
