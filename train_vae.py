@@ -44,9 +44,9 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
-    reconstruction_loss = nn.MSELoss()
-    def regularization_loss(mean, logvar):
-        return torch.mean(-0.5*torch.sum((1 + logvar - mean.square() - logvar.exp()), dim=-1))
+    reconstruction_loss = nn.MSELoss(reduction="sum")
+    def regularization_loss(mean, std):
+        return torch.mean(-0.5*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
 
     def kl_annealing(epoch, epochs, beta):
         offset = int(epochs*20/100)

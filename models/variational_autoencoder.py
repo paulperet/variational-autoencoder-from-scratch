@@ -107,12 +107,12 @@ class Encoder(nn.Module):
         mean = self.mean(block_5.squeeze())
 
         # We say that the generated value is log(std**2) so that we can generate negative values
-        logvar = self.std(block_5.squeeze()) #.exp().sqrt()
+        std = self.std(block_5.squeeze()).exp().sqrt()
 
         # Reparametrization trick:
-        z = mean + logvar.exp().sqrt() * torch.randn_like(logvar.detach())
+        z = mean + std * torch.randn_like(std.detach())
 
-        return z, mean, logvar
+        return z, mean, std
     
 class Decoder(nn.Module):
     """Decoder that mimic the 18-layer ResNet architecture in reverse"""
