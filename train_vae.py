@@ -45,8 +45,8 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
     reconstruction_loss = nn.MSELoss()
-    def regularization_loss(mean, std):
-        return torch.mean(-0.5*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
+    def regularization_loss(mean, logvar):
+        return torch.mean(-0.5*torch.sum((1 + logvar - mean.square() - logvar.exp()), dim=-1))
 
     def kl_annealing(epoch, epochs, beta):
         offset = int(epochs*20/100)
@@ -139,4 +139,4 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
         
         scheduler.step(loss.item()/len(val_loader))
         
-        print(f'Epoch: {epoch+1}/{epochs}, Train loss: {(running_reconstruction_loss/len(train_loader)):.2f}/{(running_regularization_loss/len(train_loader)):.2f}, Val loss: {(val_reconstruction_loss/len(val_loader)):.2f}/{(val_regularization_loss/len(val_loader)):.2f}, learning rate: {scheduler.get_last_lr}')
+        print(f'Epoch: {epoch+1}/{epochs}, Train loss: {(running_reconstruction_loss/len(train_loader)):.2f}/{(running_regularization_loss/len(train_loader)):.2f}, Val loss: {(val_reconstruction_loss/len(val_loader)):.2f}/{(val_regularization_loss/len(val_loader)):.2f}, learning rate: {scheduler.get_last_lr()}')
