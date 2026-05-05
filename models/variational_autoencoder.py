@@ -110,7 +110,7 @@ class Encoder(nn.Module):
         std = self.std(block_5.squeeze()).exp().sqrt()
 
         # Reparametrization trick:
-        z = mean + std * torch.randn_like(std)
+        z = mean + std * torch.randn_like(std.detach())
 
         return z, mean, std
     
