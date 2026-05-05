@@ -49,9 +49,8 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
         return torch.mean(-0.5*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
 
     def kl_annealing(epoch, epochs, beta):
-        x = epoch/epochs
-        offset = int(epochs*20/100)
-        return beta/(1+math.exp(-(x))) + offset
+        offset = int(epochs*10/100)
+        return beta/(1+math.exp(-(epoch-offset)))
     
     min_val_loss = math.inf
 
