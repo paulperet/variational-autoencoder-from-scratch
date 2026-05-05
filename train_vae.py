@@ -51,7 +51,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     def kl_annealing(epoch, epochs, beta):
         x = epoch/epochs
         offset = int(epochs*20/100)
-        return beta/(1+math.exp(-(x+offset)))
+        return beta/(1+math.exp(-(x))) + offset
     
     min_val_loss = math.inf
 
