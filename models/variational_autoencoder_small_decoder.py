@@ -170,22 +170,22 @@ class Decoder(nn.Module):
 
         block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
         block_1 = self.bn1_2(self.deconv1_2(block_1))
-        block_1 = self.ReLU(block_1 + self.proj1(bottleneck_nn))  # Residual connection; projection shortcut
+        block_1 = self.ReLU(block_1)  # Residual connection; projection shortcut
 
         # Second block
         block_2 = self.ReLU(self.bn2_1(self.deconv2_1(block_1)))
         block_2 = self.bn2_2(self.deconv2_2(block_2))
-        block_2 = self.ReLU(block_2 + self.proj2(block_1))        # Residual connection; projection shortcut
+        block_2 = self.ReLU(block_2)        # Residual connection; projection shortcut
 
         # Third block
         block_3 = self.ReLU(self.bn3_1(self.deconv3_1(block_2)))
         block_3 = self.bn3_2(self.deconv3_2(block_3))
-        block_3 = self.ReLU(block_3 + self.proj3(block_2))    # Residual connection; projection shortcut
+        block_3 = self.ReLU(block_3)    # Residual connection; projection shortcut
 
         # Fourth block
         block_4 = self.ReLU(self.bn4_1(self.deconv4_1(block_3)))
         block_4 = self.bn4_2(self.deconv4_2(block_4))
-        block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
+        block_4 = self.ReLU(block_4)    # Residual connection; identity shortcut
 
         # Fifth block; avoid using ReLU and ImageNet normalization together (images contain negative values after transforms)
         block_5 = self.deconv5_1(block_4) # Last block; no residual connection
