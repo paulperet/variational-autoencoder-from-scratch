@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from train_autoencoder import train_autoencoder
 from train_vae import train_vae
+from train_sigma_vae import train_sigma_vae
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -70,6 +71,15 @@ if __name__ == "__main__":
             bottleneck_size=args.bottleneck_size,
             output_file=args.output_file,
             dataset=args.dataset_folder,
+        )
+    elif args.model == "sigma-vae":
+        train_sigma_vae(
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            bottleneck_size=args.bottleneck_size,
+            output_file=args.output_file,
+            dataset=args.dataset_folder,
+            learning_rate=args.learning_rate,
         )
     else:
         train_vae(
