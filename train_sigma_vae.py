@@ -53,7 +53,7 @@ def train_sigma_vae(epochs, batch_size, bottleneck_size, output_file, dataset, l
     
     def reconstruction_loss(y, x):
         log_sigma = ((x - y) ** 2).mean([0,1,2,3], keepdim=True).sqrt().log().item() # No backpropagation
-        log_sigma = torch.clip(torch.tensor(log_sigma), min=-6).item()
+        log_sigma = torch.clip(torch.tensor(log_sigma), min=-6)
         loss = gaussian_nll(y, log_sigma, x).sum()
 
         return loss
