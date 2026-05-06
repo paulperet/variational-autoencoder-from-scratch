@@ -18,7 +18,7 @@ class VariationalAutoEncoder(nn.Module):
     # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
     def encode(self, x):
         """Takes input images x (batched) and returns their latent representation (or features)"""
-        return self.encoder(x)[0]
+        return self.encoder(x)
     
     def decode(self, z):
         """Reconstruct the image using the features x"""
@@ -70,9 +70,13 @@ class Encoder(nn.Module):
 
         self.proj5 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=2)
 
+        # (512, 7, 7) -> (512, 1, 1) Conv
+        self.conv6_1 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=7, padding=0)
+        self.bn6_1 = nn.BatchNorm2d(num_features=512)
+
         # Return the mean and variance vectors of the normal distribution to sample from
-        self.mean = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
-        self.std = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
+        self.mean = nn.Linear(in_features=512, out_features=self.bottleneck)
+        self.std = nn.Linear(in_features=512, out_features=self.bottleneck)
 
     def forward(self, input_image):
         # First block, no residual connection
@@ -100,14 +104,14 @@ class Encoder(nn.Module):
         block_5 = self.bn5_2(self.conv5_2(block_5))
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
-        # Global Average Pool is replaced by a linear projection of block_5
-        block_5 = block_5.view(-1,512*7*7)
+        # Global Average Pool is replaced by a 7x7 conv of block_5
+        block_6 = self.ReLU(self.conv6_1(block_5))
 
         # We generate mean and std vectors:
-        mean = self.mean(block_5.squeeze())
+        mean = self.mean(block_6.squeeze())
 
         # We say that the generated value is log(std**2) so that we can generate negative values
-        std = self.std(block_5.squeeze()).exp().sqrt()
+        std = self.std(block_6.squeeze()).exp().sqrt()
 
         # Reparametrization trick:
         z = mean + std * torch.randn_like(std.detach())
@@ -125,36 +129,75 @@ class Decoder(nn.Module):
         # Activation function
         self.ReLU = nn.ReLU()
 
-        self.linear = nn.Linear(in_features=self.bottleneck, out_features=512*3*3)
+        self.linear = nn.Linear(in_features=self.bottleneck, out_features=512)
+
+        # (512, 7, 7) -> (512, 1, 1) Conv
+        self.deconv_0 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=7, padding=0)
+        self.bn0 = nn.BatchNorm2d(num_features=512)
 
         # First block parameters; stride 2 is used to upsample
-        self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=64, kernel_size=3, stride=3, padding=1, output_padding=0)
-        self.bn1_1 = nn.BatchNorm2d(num_features=64)
+        self.deconv1_1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, padding=1)
+        self.bn1_1 = nn.BatchNorm2d(num_features=512)
+        self.deconv1_2 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.bn1_2 = nn.BatchNorm2d(num_features=512)
 
-         # First block parameters; stride 2 is used to upsample
-        self.deconv2_1 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, padding=1)
-        self.bn2_1 = nn.BatchNorm2d(num_features=64)
-        self.deconv2_2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.bn2_2 = nn.BatchNorm2d(num_features=64)
-
-        self.proj2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=1, stride=2, output_padding=1)
+        self.proj1 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=1, stride=2, output_padding=1)
         
+        # Second block parameters; stride 2 is used to upsample
+        self.deconv2_1 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=3, padding=1)
+        self.bn2_1 = nn.BatchNorm2d(num_features=256)
+        self.deconv2_2 = nn.ConvTranspose2d(in_channels=256, out_channels=256, stride=2, kernel_size=3, padding=1, output_padding=1)
+        self.bn2_2 = nn.BatchNorm2d(num_features=256)
+
+        self.proj2 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=1, stride=2, output_padding=1)
+
+        # Third block parameters; stride 2 is used to upsample
+        self.deconv3_1 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, padding=1)
+        self.bn3_1 = nn.BatchNorm2d(num_features=128)
+        self.deconv3_2 = nn.ConvTranspose2d(in_channels=128, out_channels=128, stride=2, kernel_size=3, padding=1, output_padding=1)
+        self.bn3_2 = nn.BatchNorm2d(num_features=128)
+
+        self.proj3 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=1, stride=2, output_padding=1)
+
+        # Fourth block parameters
+        self.deconv4_1 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=3, padding=1)
+        self.bn4_1 = nn.BatchNorm2d(num_features=64)
+        self.deconv4_2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.bn4_2 = nn.BatchNorm2d(num_features=64)
+
+        self.proj4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=1, stride=2, output_padding=1)
+
         # Fifth block parameters; stride 2 is used to upsample
-        self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=3, kernel_size=3, stride=17, padding=1, output_padding=2)
+        self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=3, kernel_size=7, stride=2, padding=3, output_padding=1)
 
     def forward(self, bottleneck):
         # First block, no residual connection
 
-        bottleneck_nn = self.linear(bottleneck)
-        bottleneck_nn = bottleneck_nn.view(-1,512,3,3)
+        bottleneck_nn = self.ReLU(self.linear(bottleneck))
 
-        block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
+        block_0 = self.ReLU(self.bn0(self.deconv_0(bottleneck_nn.unsqueeze(-1).unsqueeze(-1))))
 
+        block_1 = self.ReLU(self.bn1_1(self.deconv1_1(block_0)))
+        block_1 = self.bn1_2(self.deconv1_2(block_1))
+        block_1 = self.ReLU(block_1 + self.proj1(block_0))  # Residual connection; projection shortcut
+
+        # Second block
         block_2 = self.ReLU(self.bn2_1(self.deconv2_1(block_1)))
         block_2 = self.bn2_2(self.deconv2_2(block_2))
-        block_2 = self.ReLU(block_2 + self.proj2(block_1))  # Residual connection; projection shortcut
+        block_2 = self.ReLU(block_2 + self.proj2(block_1))        # Residual connection; projection shortcut
+
+        # Third block
+        block_3 = self.ReLU(self.bn3_1(self.deconv3_1(block_2)))
+        block_3 = self.bn3_2(self.deconv3_2(block_3))
+        block_3 = self.ReLU(block_3 + self.proj3(block_2))    # Residual connection; projection shortcut
+
+        # Fourth block
+        block_4 = self.ReLU(self.bn4_1(self.deconv4_1(block_3)))
+        block_4 = self.bn4_2(self.deconv4_2(block_4))
+        block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
+
         # Fifth block; avoid using ReLU and ImageNet normalization together (images contain negative values after transforms)
-        block_5 = self.deconv5_1(block_2) # Last block; no residual connection
+        block_5 = self.deconv5_1(block_4) # Last block; no residual connection
 
         return block_5
 

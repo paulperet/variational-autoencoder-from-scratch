@@ -70,9 +70,10 @@ def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
     input = test_transforms(image).to(device)
 
     # Get the features
-    features = model.encode(input.unsqueeze(0))
-    print(features.max(), features.min())
-
+    if model_type == "vae":
+        _, features, _ = model.encode(input.unsqueeze(0))
+    else:
+        features = model.encode(input.unsqueeze(0))
     # Operations on the features: slightly move the point to get interesting results
     features += torch.randn(bottleneck_size) * 5
 
@@ -81,7 +82,8 @@ def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
 
     # Get the default reconstruction
     if model_type == "vae":
-        output_default = model(input.unsqueeze(0))[0].squeeze()
+        _, mean, _ = model.encode(input.unsqueeze(0))
+        output_default = model.decode(mean)[0].squeeze()
     else:
         output_default = model(input.unsqueeze(0)).squeeze()
     

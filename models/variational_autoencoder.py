@@ -18,7 +18,7 @@ class VariationalAutoEncoder(nn.Module):
     # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
     def encode(self, x):
         """Takes input images x (batched) and returns their latent representation (or features)"""
-        return self.encoder(x)[0]
+        return self.encoder(x)
     
     def decode(self, z):
         """Reconstruct the image using the features x"""
