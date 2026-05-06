@@ -6,7 +6,7 @@ from torchvision.datasets import ImageFolder
 from torch.optim import SGD, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.autoencoder import AutoEncoder
-from models.variational_autoencoder_optimized import VariationalAutoEncoder
+from models.variational_autoencoder import VariationalAutoEncoder
 from transforms import train_transforms, test_transforms
 import math
 import os
@@ -46,7 +46,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
     reconstruction_loss = nn.MSELoss()
     def regularization_loss(mean, std):
-        return torch.mean(-0.5*(1 + torch.log(std.square()) - mean.square() - std.square()))
+        return torch.mean(-0.5*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=1))
 
     def kl_annealing(epoch, epochs, beta):
         offset = int(epochs*20/100)
@@ -89,8 +89,8 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
-                #loss += regularization_loss(mean, std)
-                #running_regularization_loss += loss.item() - current_reconstruction_loss
+                loss += (1/bottleneck_size) * regularization_loss(mean, std)
+                running_regularization_loss += loss.item() - current_reconstruction_loss
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
