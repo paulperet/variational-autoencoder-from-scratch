@@ -129,10 +129,10 @@ class Decoder(nn.Module):
         # Activation function
         self.ReLU = nn.ReLU()
 
-        self.linear = nn.Linear(in_features=self.bottleneck, out_features=512)
+        self.linear = nn.Linear(in_features=self.bottleneck, out_features=4096)
 
         # (512, 7, 7) -> (512, 1, 1) Conv
-        self.deconv_0 = nn.ConvTranspose2d(in_channels=512, out_channels=512, kernel_size=7, padding=0)
+        self.deconv_0 = nn.ConvTranspose2d(in_channels=4096, out_channels=512, kernel_size=7, padding=0)
         self.bn0 = nn.BatchNorm2d(num_features=512)
 
         # First block parameters; stride 2 is used to upsample
