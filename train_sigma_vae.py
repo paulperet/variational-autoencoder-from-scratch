@@ -49,7 +49,7 @@ def train_sigma_vae(epochs, batch_size, bottleneck_size, output_file, dataset, l
         return -0.5*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()))
     
     def softclip(tensor, min):
-        result_tensor = min + torch.nn.F.softplus(tensor - min)
+        result_tensor = min + torch.nn.functional.softplus(tensor - min)
         return result_tensor
 
     def gaussian_nll(mu, log_sigma, x):
