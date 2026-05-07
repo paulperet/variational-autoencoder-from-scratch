@@ -49,7 +49,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     def reconstruction_loss(x_rec, x):
         loss = mse_loss(x_rec, x)
         loss = loss.mean(dim=[1,2,3])
-        loss = loss.sum()
+        return loss.sum()
 
     def regularization_loss(mean, std):
         return -0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square())
