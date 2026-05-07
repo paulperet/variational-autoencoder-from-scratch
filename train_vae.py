@@ -78,14 +78,14 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
                 # Pass our input through the model to get our output
                 outputs, mean, std = model(inputs)
 
-                loss = ((224*224) / 2) * reconstruction_loss(outputs.view(-1, 224*224), inputs.view(-1, 224*224))
+                loss = reconstruction_loss(outputs.view(-1, 224*224), inputs.view(-1, 224*224))
 
                 current_reconstruction_loss = loss.item()
                 running_reconstruction_loss += loss.item()
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
-                loss += regularization_loss(mean, std)
+                loss += (bottleneck_size/(224*224)) * regularization_loss(mean, std)
                 running_regularization_loss += loss.item() - current_reconstruction_loss
 
             scaler.scale(loss).backward()
@@ -107,7 +107,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
                 
                 outputs, mean, std = model(inputs)
 
-                loss = ((224*224) / 2) * reconstruction_loss(outputs.view(-1, 224*224), inputs.view(-1, 224*224))
+                loss = reconstruction_loss(outputs.view(-1, 224*224), inputs.view(-1, 224*224))
                 val_current_reconstruction_loss = loss.item()
                 val_reconstruction_loss += loss.item()
 
