@@ -47,7 +47,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     reconstruction_loss = nn.MSELoss(size_average=False)
 
     def regularization_loss(mean, std):
-        return -0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square())
+        return torch.mean(-0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square(), dim=1))
     
     min_val_loss = math.inf
 
@@ -79,7 +79,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
                 # Pass our input through the model to get our output
                 outputs, mean, std = model(inputs)
 
-                loss = reconstruction_loss(outputs, inputs)
+                loss = reconstruction_loss(outputs, inputs).div(batch_size)
 
                 current_reconstruction_loss = loss.item()
                 running_reconstruction_loss += loss.item()
