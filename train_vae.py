@@ -44,9 +44,15 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
-    reconstruction_loss = nn.MSELoss()
+    mse_loss = nn.MSELoss(reduction="none")
+
+    def reconstruction_loss(x_rec, x):
+        loss = mse_loss(x_rec, x)
+        loss = loss.mean(dim=[1,2,3])
+        loss = loss.sum()
+
     def regularization_loss(mean, std):
-        return torch.mean(-0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square(), dim=1))
+        return -0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square())
     
     min_val_loss = math.inf
 
@@ -78,14 +84,14 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
                 # Pass our input through the model to get our output
                 outputs, mean, std = model(inputs)
 
-                loss = reconstruction_loss(outputs.view(-1, 224*224), inputs.view(-1, 224*224))
+                loss = reconstruction_loss(outputs, inputs)
 
                 current_reconstruction_loss = loss.item()
                 running_reconstruction_loss += loss.item()
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
-                loss += (bottleneck_size/(224*224)) * regularization_loss(mean, std)
+                loss += regularization_loss(mean, std)
                 running_regularization_loss += loss.item() - current_reconstruction_loss
 
             scaler.scale(loss).backward()
@@ -107,7 +113,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
                 
                 outputs, mean, std = model(inputs)
 
-                loss = reconstruction_loss(outputs.view(-1, 224*224), inputs.view(-1, 224*224))
+                loss = reconstruction_loss(outputs, inputs)
                 val_current_reconstruction_loss = loss.item()
                 val_reconstruction_loss += loss.item()
 
