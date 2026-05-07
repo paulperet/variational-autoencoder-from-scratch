@@ -44,10 +44,15 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
-    reconstruction_loss = nn.MSELoss(reduction='sum')
+    #reconstruction_loss = nn.MSELoss(reduction='sum')
+
+    def reconstruction_loss(x_recon, x):
+        loss = nn.MSELoss(reduction='none')(x_recon, x)
+        loss = torch.mean(loss.view(-1, 3*224*224), dim=1)
+        loss = loss.sum()
 
     def regularization_loss(mean, std):
-        return -0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square())
+        return torch.sum(-0.5*torch.sum(1 + torch.log(std.square()) - mean.square() - std.square(), dim=1))
     
     min_val_loss = math.inf
 

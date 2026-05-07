@@ -100,7 +100,7 @@ class Encoder(nn.Module):
         output = block_5.view(-1,512*7*7)
 
         # Output logits
-        output = self.linear(output.squeeze())
+        output = self.linear(output)
 
         return output
     

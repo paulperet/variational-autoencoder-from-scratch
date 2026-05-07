@@ -104,13 +104,13 @@ class Encoder(nn.Module):
         block_5 = block_5.view(-1,512*7*7)
 
         # We generate mean and std vectors:
-        mean = self.mean(block_5.squeeze())
+        mean = self.mean(block_5)
 
         # We say that the generated value is log(std**2) so that we can generate negative values
-        std = self.std(block_5.squeeze()).exp().sqrt()
+        std = self.std(block_5).exp().sqrt()
 
         # Reparametrization trick:
-        z = mean + std * torch.randn_like(std.detach())
+        z = mean + std * torch.randn_like(mean)
 
         return z, mean, std
     
