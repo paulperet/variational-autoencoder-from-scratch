@@ -56,6 +56,13 @@ def parse_args():
         help="learning rate",
     )
 
+    parser.add_argument(
+        "--beta",
+        type=float,
+        required=False,
+        help="Beta value (default: 1)",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -89,4 +96,5 @@ if __name__ == "__main__":
             output_file=args.output_file,
             dataset=args.dataset_folder,
             learning_rate=args.learning_rate,
+            beta=args.beta,
         )

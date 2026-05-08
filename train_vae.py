@@ -21,7 +21,13 @@ if torch.cuda.is_available():
     device = "cuda"
     use_amp=True
 
-def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learning_rate=1e-4):
+def cyclical_annealing(step, steps, n_cycles, prop):
+    t = (step % math.ceil((steps/n_cycles))) / (steps/n_cycles)
+    if t <= prop:
+        return 2*t # Linear function can be changed to smoother function like sigmoid or cosine
+    return 1
+
+def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learning_rate=1e-4, beta=1.0):
 
     # Create the output path
 
@@ -86,7 +92,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
                 # Variational encoders add a regularization term that computes the KL divergence between the encoder
                 # distribution and the normal distribution
-                loss += regularization_loss(mean, std).mean()
+                loss += beta * regularization_loss(mean, std).mean()
                 running_regularization_loss += loss.item() - current_reconstruction_loss
 
             scaler.scale(loss).backward()
