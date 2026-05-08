@@ -46,9 +46,9 @@ def generate_image_unguided(checkpoint_path, model_type="ae"):
     
     # Plot the input and reconstructed image
     plt.title('Model Inference, random point in the feature space')
-    plt.imshow(inverse_transforms(output).permute(1,2,0).detach().cpu().numpy())
-    plt.show()
+    plt.imshow(output.permute(1,2,0).detach().cpu().numpy())
     plt.savefig('image_unguided.png')
+    plt.show()
 
 def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
     """Generate an image starting from a encoded image"""
@@ -91,11 +91,11 @@ def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
     # Plot the input and reconstructed image
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
     fig.suptitle('Model Inference')
-    ax1.imshow(inverse_transforms(input.cpu()).permute(1,2,0))
+    ax1.imshow(input.cpu().permute(1,2,0))
     ax1.set_title("Input Image")
-    ax2.imshow(inverse_transforms(output_default).permute(1,2,0).detach().cpu().numpy())
+    ax2.imshow(output_default.permute(1,2,0).detach().cpu().numpy())
     ax2.set_title("Reconstructed Image")
-    ax3.imshow(inverse_transforms(output_sample_close_points).permute(1,2,0).detach().cpu().numpy())
+    ax3.imshow(output_sample_close_points.permute(1,2,0).detach().cpu().numpy())
     ax3.set_title("Generated image from a close point in the feature space")
     plt.savefig('image_guided.png')
     plt.show()
