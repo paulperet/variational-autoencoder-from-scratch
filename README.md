@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 To illustrate our experiments, we will use a ResNet-18 CNN [2] as our visual encoder, which as been slightly modified for our needs. The architecture for the encoder is as follow:
 
-<img width="1379" height="1080" alt="resnet-18" src="https://github.com/user-attachments/assets/aadbef5e-c6b1-4c23-9b42-790015eb549d" />
+<img width="1383" height="1080" alt="resnet-18-2" src="https://github.com/user-attachments/assets/fc1dc74b-3c81-42ac-a952-27f3eea8fcce" />
 
 The decoder is a reversed version of the encoder, where the convolutional layers are replaced by transposed convolutional layers.
 
