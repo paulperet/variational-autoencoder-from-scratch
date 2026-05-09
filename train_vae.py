@@ -48,7 +48,7 @@ def train_vae(epochs, batch_size, bottleneck_size, output_file, dataset, learnin
 
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-3)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
-    scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
+    scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5, threshold=1.0)
 
     reconstruction_loss = nn.MSELoss(reduction='none')
 

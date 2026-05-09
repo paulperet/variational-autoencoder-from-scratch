@@ -3,3 +3,5 @@ output/*
 .DS_Store
 __pycache__
 test.ipynb
+image_guided.png
+image_unguided.png
