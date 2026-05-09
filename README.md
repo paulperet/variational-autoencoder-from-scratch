@@ -5,7 +5,7 @@ This repository explores the design, training, experiments and theorical foundat
 The repository can serve as an introduction to autoencoders and VAEs and a guide on how to implement and train them in practice.
 
 <p align="center">
-<img width="933" height="459" alt="model_comparison" src="https://github.com/user-attachments/assets/18b53f33-ad08-4ecd-88e1-487387921564" />
+<img width="1352" height="668" alt="model_comparison-2" src="https://github.com/user-attachments/assets/bdc86844-5890-41b2-853c-89c03aed8a9f" />
 </p>
 
 Above is an example of an autoencoder and variational autoencoder trained on the CelebA-HQ Dataset [1]. The dataset contains 30k high-quality images of celebrities. Both the autoencoder and variational encoders have been trained with a bottleneck size of 1024, for 100 epochs.
