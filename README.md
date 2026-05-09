@@ -6,9 +6,17 @@ The repository can serve as an introduction to autoencoders and VAEs and a guide
 
 ### The ResNet architecture
 
-To illustrate our experiments, we will use a ResNet-18 CNN as our visual encoder, which as been slightly modified for our needs. The architecture is as follow:
+To illustrate our experiments, we will use a ResNet-18 CNN as our visual encoder, which as been slightly modified for our needs. The architecture for the encoder is as follow:
 
-<img width="1379" height="1080" alt="resnet-18" src="https://github.com/user-attachments/assets/bbb4c0fa-7e89-4756-9cd5-a03f71ff29f4" />
+<img width="1379" height="1080" alt="resnet-18" src="https://github.com/user-attachments/assets/aadbef5e-c6b1-4c23-9b42-790015eb549d" />
+
+The decoder is a reversed version of the encoder, where the convolutional layers are replaced by transposed convolutional layers.
+
+#### Convolutional Layers
+
+#### Transposed Convolution Layers
+
+### Autoencoders
 
 # References
 [1] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
