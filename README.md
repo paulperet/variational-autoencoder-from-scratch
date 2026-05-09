@@ -49,6 +49,8 @@ Example of latent nodes:
 
 #### Variational Inference
 
+##### Intractible marginal
+
 We represent the problem as a directed graphical model with an observed node $$X$$ (e.g. a dataset D of images of faces) and a latent node $$Z$$ (latent or compressed representation of the data e.g. hair color, face orientation). The goal is to perform inference, or to be able to recover the distribution of $$X$$ when observing a latent distribution $$Z$$. We express this as the posterior and it can be computed using Bayes' Rule:
 
 $$P(X|X=D) = \frac{P(X=D|Z)P(Z)}{P(X=D)}$$
@@ -59,15 +61,27 @@ So instead of computing the posterior directly, we choose a surrogate function (
 
 $$q(Z) \approx p(Z|X=D)$$
 
+##### Finding a surrogate via optimization
+
 Thanks to this we can now express our problem as an optimization problem:
 
 $$q^*(Z) = argmin_{q(z) \in Q} (KL(q(Z) || p(Z|X=D)$$
 
 The Kullback–Leibler divergence expresses the difference between two distributions. Our goal is to minimize this distance so that our surrogate function best capture the original distribution. But we still have a problem:
 
-$$KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})] = \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z|X=D})$$
+$$KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})] = \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z|X=D)}$$
 
-We don't have the posterior P(Z|X=D)! We only have the joint P(Z, X=D).
+We don't have the posterior $$P(Z|X=D)$$! We only have the joint $$P(Z, X=D)$$.
+
+##### Rearranging the terms to isolate the marginal
+
+$$KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})]  \\
+= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z|X=D)} \\
+= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)p(X=D)}{p(Z,X=D)} \\
+= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z,X=D)} \int_{z_{0}}...\int_{z_{D-1}}q(Z)log(p(X=D)) \\
+= \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})] + \mathbb{E_{z \sim q(Z)}}[log(p(X=D))] \\
+= \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})] + log(p(X=D)) \\ 
+$$
 
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
