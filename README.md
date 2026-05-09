@@ -77,12 +77,11 @@ We don't have the posterior $$P(Z|X=D)$$! We only have the joint $$P(Z, X=D)$$.
 
 $$
 \begin{align*}
-KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})]  \\
-= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z|X=D)} \\
-= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)p(X=D)}{p(Z,X=D)} \\
-= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z,X=D)} \int_{z_{0}}...\int_{z_{D-1}}q(Z)log(p(X=D)) \\
-= \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})] + \mathbb{E_{z \sim q(Z)}}[log(p(X=D))] \\
-= \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})] + log(p(X=D)) \\
+KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})] &= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z|X=D)} \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)p(X=D)}{p(Z,X=D)} \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z,X=D)} \int_{z_{0}}...\int_{z_{D-1}}q(Z)log(p(X=D)) \\
+&= \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})] + \mathbb{E_{z \sim q(Z)}}[log(p(X=D))] \\
+&= \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})] + log(p(X=D)) \\
 \end{align*}
 $$
 
