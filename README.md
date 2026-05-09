@@ -8,7 +8,7 @@ The repository can serve as an introduction to autoencoders and VAEs and a guide
 <img width="1352" height="668" alt="model_comparison-2" src="https://github.com/user-attachments/assets/bdc86844-5890-41b2-853c-89c03aed8a9f" />
 </p>
 
-Above is an example of an autoencoder and variational autoencoder trained on the CelebA-HQ Dataset [1]. The dataset contains 30k high-quality images of celebrities. Both the autoencoder and variational encoders have been trained with a bottleneck size of 1024, for 100 epochs.
+Above is an example of an autoencoder and variational autoencoder trained on the CelebA-HQ Dataset [1]. The dataset contains 30k high-quality images of celebrities. Both the autoencoder and variational encoders have been trained with a bottleneck size of 1024, for 100 epochs. As we can observe, the autoencoder is able to reconstruct more precisely, but is unable to generate any coherent image du to the disorganized latent space. The VAE has less precise reconstructions (more blur) but is able to generate new samples.
 
 ### Installation
 
