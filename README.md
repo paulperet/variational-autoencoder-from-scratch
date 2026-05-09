@@ -63,6 +63,12 @@ Thanks to this we can now express our problem as an optimization problem:
 
 $$q^*(Z) = argmin_{q(z) \in Q} (KL(q(Z) || p(Z|X=D)$$
 
+The Kullback–Leibler divergence expresses the difference between two distributions. Our goal is to minimize this distance so that our surrogate function best capture the original distribution. But we still have a problem:
+
+$$KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})] = \int_{z_{0}}...\int_{z_{D-1}}q(Z)log\frac{q(Z)}{p(Z|X=D})$$
+
+We don't have the posterior P(Z|X=D)! We only have the joint P(Z, X=D).
+
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
