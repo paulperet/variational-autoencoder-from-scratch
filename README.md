@@ -47,7 +47,21 @@ Example of latent nodes:
 
 [EXAMPLE]
 
-#### ELBO
+#### Variational Inference
+
+We represent the problem as a directed graphical model with an observed node $$X$$ (e.g. a dataset D of images of faces) and a latent node $$Z$$ (latent or compressed representation of the data e.g. hair color, face orientation). The goal is to perform inference, or to be able to recover the distribution of $$X$$ when observing a latent distribution $$Z$$. We express this as the posterior and it can be computed using Bayes' Rule:
+
+$$P(X|X=D) = \frac{P(X=D|Z)P(Z)}{P(X=D)}$$
+
+While we can compute the joint distribution, the marginal $$P(X=D)$$ is intractible. It cannot be easily computed analytically and the computational cost of approximating the denominator scales exponentially according to the domain of latent variables.
+
+So instead of computing the posterior directly, we choose a surrogate function (simpler function) to approximate the original distribution:
+
+$$q(Z) \approx p(Z|X=D)$$
+
+Thanks to this we can now express our problem as an optimization problem:
+
+$$q^*(Z) = argmin_{q(z) \in Q} (KL(q(Z) || p(Z|X=D)$$
 
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
