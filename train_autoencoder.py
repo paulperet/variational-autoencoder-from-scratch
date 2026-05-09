@@ -44,7 +44,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
-    reconstruction_loss = nn.MSELoss()
+    reconstruction_loss = nn.MSELoss(reduce='none')
     def regularization_loss(mean, std):
         return torch.mean((-1/2)*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
     
@@ -77,7 +77,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
                 # Pass our input through the model to get our output
                 outputs = model(inputs)
 
-                loss = reconstruction_loss(outputs, inputs)
+                loss = reconstruction_loss(outputs, inputs).sum([1,2,3]).mean()
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -100,8 +100,8 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
                 labels = labels.to(device)
                 
                 outputs = model(inputs)
-                loss = reconstruction_loss(outputs, inputs)
-                
+                loss = reconstruction_loss(outputs, inputs).sum([1,2,3]).mean()
+
                 val_total_loss += loss.item()
                 
                 # Save model weights and bottleneck size if improvement
