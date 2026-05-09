@@ -45,9 +45,6 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
     reconstruction_loss = nn.MSELoss(reduce='none')
-    def regularization_loss(mean, std):
-        return torch.mean((-1/2)*torch.sum((1 + torch.log(std.square()) - mean.square() - std.square()), dim=-1))
-    
     min_val_loss = math.inf
 
     # Dataset & DataLoader Creation

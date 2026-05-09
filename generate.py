@@ -76,7 +76,7 @@ def generate_image_guided(checkpoint_path, image_path, model_type="ae"):
     else:
         features = model.encode(input.unsqueeze(0))
     # Operations on the features: slightly move the point to get interesting results
-    features += torch.randn(bottleneck_size, device=device) * 5
+    features += torch.randn(bottleneck_size, device=device)
 
     # Pass our vector to the model
     output_sample_close_points = model.decode(features).squeeze()

@@ -72,7 +72,6 @@ if __name__ == "__main__":
 
     if args.model == "ae":
         train_autoencoder(
-            model_choice=args.model,
             epochs=args.epochs,
             batch_size=args.batch_size,
             bottleneck_size=args.bottleneck_size,
