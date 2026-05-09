@@ -44,7 +44,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5)
 
-    reconstruction_loss = nn.MSELoss(reduce='none')
+    reconstruction_loss = nn.MSELoss(reduction='none')
     min_val_loss = math.inf
 
     # Dataset & DataLoader Creation
