@@ -53,6 +53,7 @@ def parse_args():
         type=float,
         required=False,
         help="learning rate",
+        default=1e-4
     )
 
     parser.add_argument(
@@ -60,6 +61,7 @@ def parse_args():
         type=float,
         required=False,
         help="Beta value (default: 1)",
+        default=1.0
     )
 
     args = parser.parse_args()
