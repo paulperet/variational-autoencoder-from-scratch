@@ -16,8 +16,36 @@ Clone the repository & install dependencies
 ```bash
 git clone https://github.com/paulperet/visual-encoders-from-scratch
 cd visual-encoders-from-scratch
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Dataset requirements:
+- 224x224 or higher resolution
+- 10k+ samples is better
+
+Structure:
+```
+.
+├── data
+│   ├── dataset_example
+│   │   ├── train
+│   │   │   ├── class1
+│   │   │   │   ├── image.png
+│   │   │   │   └── image.png
+│   │   │   └── class2
+│   │   │       ├── image.png
+│   │   │       └── image.png
+│   │   └── val
+│   │       ├── class1
+│   │       │    ├── image.png
+│   │       │    └── image.png
+│   │       └── class2
+│   │       │    ├── image.png
+│   │       │    └── image.png
+```
+
 
 ### The ResNet architecture
 
