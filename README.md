@@ -185,7 +185,19 @@ And the reconstruction term to:
 $$log(p(X=D|Z)) \approx \sum_{j=1}^J (x_{i}^{(j)} - \mu_{i}^{(j)})$$
 
 # References
+Research papers:
+
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196) </br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) </br>
-[3] [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
-[4] [beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework](https://openreview.net/forum?id=Sy2fzU9gl)
+[3] [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) </br>
+[4] [beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework](https://openreview.net/forum?id=Sy2fzU9gl) </br>
+
+Videos:
+
+[What is a latent variable?](https://www.youtube.com/watch?v=SNeC_SrbNZw) </br>
+[Introduction to Directed Graphical Models | Implementation in TensorFlow Probability
+](https://www.youtube.com/watch?v=yBc01ZeaFxw) </br>
+[Variational Inference | Evidence Lower Bound (ELBO) | Intuition & Visualization](https://www.youtube.com/watch?v=HxQ94L8n0vU&list=PLt5BUXqHz_OlQwyOSAT2cOvCcdBWVKBK5) </br>
+[The challenges in Variational Inference (+ visualization)](https://www.youtube.com/watch?v=gV1NWMiiAEI&list=PLt5BUXqHz_OlQwyOSAT2cOvCcdBWVKBK5&index=2)
+
+
