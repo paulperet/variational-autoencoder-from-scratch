@@ -131,3 +131,4 @@ $$\mathcal{L}(q) = -KL(q(Z)) || p(Z)) + log(p(X=D|Z)$$
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+[3] [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
