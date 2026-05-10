@@ -153,7 +153,7 @@ Expanding $$\mathcal{L}(q)$$, we have:
 $$
 \begin{align*}
 \mathcal{L}(q) &= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(Z, X=D))] \\
-&= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(X=D|Z))(p(Z)] \\
+&= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(X=D|Z)(p(Z))] \\
 &= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(X=D|Z)) + log(p(Z)] \\
 &= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(Z))] + \mathbb{E_{z \sim q(Z)}}[log(p(X=D|Z)] \\
 &= -KL(q(Z)) || p(Z)) + \mathbb{E_{z \sim q(Z)}}[log(p(X=D|Z)] \\
