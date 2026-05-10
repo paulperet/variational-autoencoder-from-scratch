@@ -93,7 +93,7 @@ We know that:
 - KL divergence is greater or equal to 0.
 - $$p(X=D)$$ is between 0 and 1 and the log of that is equal or less than 0.
 
-Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound. Therefore, because $$log(p(X=D))$$ is constant (our dataset), minimzing the KL divergence is equivalent to maximizing the ELBO:
+Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound. Therefore, because $$log(p(X=D))$$ is constant (our dataset), minimizing the KL divergence is equivalent to maximizing the ELBO:
 
 $$
 \begin{align*}
