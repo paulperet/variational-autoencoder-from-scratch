@@ -114,6 +114,20 @@ $$
 \end{align*}
 $$
 
+##### Estimating the gradient
+
+In practice, we will choose q(Z) and p(Z) to be normal or bernoulli distributions, depending on our data. This means that we can easily integrate the KL term analytically. Therefore, we only need to estimate the reconstruction term $$\mathbb{E_{z \sim q(Z)}}[log(p(X=D|Z)]$$. We can use Monte-Carlo sampling to find a good estimate:
+
+$$\mathcal{L}(q) = -KL(q(Z)) || p(Z)) + \frac{1}{L} \sum_{l=0}^L log(p(X=D|Z)$$
+
+We calculate the gradient over a minibatch:
+
+$$\mathcal{L}(\theta, \phi; X) \approx \mathcal{L^M}(\theta, \phi; X^M) = \frac{N}{M} \sum_{i=1}^M \mathcal{L}(\theta, \phi; x^{(i)})$$
+
+Often, the estimation over a large enough batch (M>100) while only sampling a single $$p(X=D|Z)$$ yields a sufficiently good estimate, so we can use this expression in practice:
+
+$$\mathcal{L}(q) = -KL(q(Z)) || p(Z)) + log(p(X=D|Z)$$
+
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
