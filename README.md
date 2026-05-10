@@ -102,6 +102,18 @@ q^* (Z) &= argmin_{q(z) \in Q} (KL(q(Z) || p(Z|X=D))) \\
 \end{align*}
 $$
 
+Expanding $$\mathcal{L}(q)$$, we have:
+
+$$
+\begin{align*}
+\mathcal{L}(q) &= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(Z, X=D))] \\
+&= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(X=D|Z))(p(Z)] \\
+&= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(X=D|Z)) + log(p(Z)] \\
+&= \mathbb{E_{z \sim q(Z)}}[-log(q(Z)) + log(p(Z))] + \mathbb{E_{z \sim q(Z)}}[log(p(X=D|Z)] \\
+&= -KL(q(Z)) || p(Z)) + \mathbb{E_{z \sim q(Z)}}[log(p(X=D|Z)] \\
+\end{align*}
+$$
+
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
