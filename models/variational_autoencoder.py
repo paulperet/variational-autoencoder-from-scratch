@@ -15,7 +15,8 @@ class VariationalAutoEncoder(nn.Module):
         x = self.decoder(z)
         return x, mean, std
     
-    # Define two functions encode and decode to use each component separately to run experiments (specifically on the latent space)
+    # Define two functions encode and decode to use each component separately to run experiments 
+    # (specifically on the latent space)
     def encode(self, x):
         """Takes input images x (batched) and returns their latent representation (or features)"""
         return self.encoder(x)
@@ -75,8 +76,8 @@ class Encoder(nn.Module):
         self.std = nn.Linear(in_features=512*7*7, out_features=self.bottleneck)
 
     def forward(self, input_image):
+
         # First block, no residual connection
-        
         block_1 = self.ReLU(self.bn1(self.conv1(input_image)))
         block_1 = self.max_pool(block_1)
 
@@ -100,7 +101,7 @@ class Encoder(nn.Module):
         block_5 = self.bn5_2(self.conv5_2(block_5))
         block_5 = self.ReLU(block_5 + self.proj5(block_4))     # Residual connection; projection shortcut
 
-        # Global Average Pool is replaced by a linear projection of block_5
+        # Global Average Pool is replaced by flattening block_5
         block_5 = block_5.view(-1,512*7*7)
 
         # We generate mean and std vectors:
@@ -163,11 +164,11 @@ class Decoder(nn.Module):
         self.deconv5_1 = nn.ConvTranspose2d(in_channels=64, out_channels=3, kernel_size=7, stride=2, padding=3, output_padding=1)
 
     def forward(self, bottleneck):
-        # First block, no residual connection
-
+        
         bottleneck_nn = self.linear(bottleneck)
         bottleneck_nn = bottleneck_nn.view(-1,512,7,7)
 
+        # First block
         block_1 = self.ReLU(self.bn1_1(self.deconv1_1(bottleneck_nn)))
         block_1 = self.bn1_2(self.deconv1_2(block_1))
         block_1 = self.ReLU(block_1 + self.proj1(bottleneck_nn))  # Residual connection; projection shortcut
@@ -187,12 +188,7 @@ class Decoder(nn.Module):
         block_4 = self.bn4_2(self.deconv4_2(block_4))
         block_4 = self.ReLU(block_4 + self.proj4(block_3))    # Residual connection; identity shortcut
 
-        # Fifth block; avoid using ReLU and ImageNet normalization together (images contain negative values after transforms)
+        # Fifth block
         block_5 = self.deconv5_1(block_4) # Last block; no residual connection
 
         return block_5
-
-#random_noise = torch.randn((32,3,224,224))
-#Encoder(bottleneck=256).forward(random_noise)
-
-#AutoEncoder().forward(random_noise)

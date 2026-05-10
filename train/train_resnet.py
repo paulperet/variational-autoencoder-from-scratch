@@ -6,7 +6,7 @@ from torchvision.datasets import ImageFolder
 from torch.optim import SGD, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.resnet18 import ResNet18
-from transforms import train_transforms, test_transforms
+from utils.transforms import train_transforms, test_transforms
 from torchmetrics import Accuracy
 
 # Set device

@@ -7,13 +7,12 @@ from torch.optim import SGD, AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.autoencoder import AutoEncoder
 from models.variational_autoencoder import VariationalAutoEncoder
-from transforms import train_transforms, test_transforms
+from utils.transforms import train_transforms, test_transforms
 import math
 import os
 from pathlib import Path
 
 # Set device
-
 device = "cpu"
 pin_memory = True
 use_amp = False
@@ -24,22 +23,18 @@ if torch.cuda.is_available():
 def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset):
 
     # Create the output path
-
     output_path = Path("output/") / output_file
 
     # Create the model
-
     model = AutoEncoder(bottleneck=bottleneck_size).to(device=device)
 
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
     # Print number of parameters
-
     print(f"Number of parameters : {sum(p.numel() for p in model.parameters())}, trainable parameters : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
     # Training settings
-
     optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5, threshold=1.0)
@@ -48,7 +43,6 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
     min_val_loss = math.inf
 
     # Dataset & DataLoader Creation
-
     train_path = dataset / Path("train")
     val_path = dataset / Path("val")
 
@@ -59,7 +53,6 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
     val_loader = DataLoader(dataset_val, batch_size=batch_size)
 
     # Main training loop
-
     for epoch in range(epochs):
         running_loss = 0.0
 
@@ -83,8 +76,6 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
             running_loss += loss.item()
 
             optimizer.zero_grad(set_to_none=True)
-
-            #print(f'Epoch: {epoch+1}/{epochs}, Iteration: {i+1}/{len(train_loader)}, Loss: {running_loss/(i+1)}')
 
         model.eval()
 

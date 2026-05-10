@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
-from train_autoencoder import train_autoencoder
-from train_vae import train_vae
+from train.train_autoencoder import train_autoencoder
+from train.train_vae import train_vae
 from train_sigma_vae import train_sigma_vae
 
 def parse_args():

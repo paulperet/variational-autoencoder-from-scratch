@@ -5,7 +5,7 @@ import torchvision
 import torch.nn as nn
 from models.autoencoder import AutoEncoder
 from models.variational_autoencoder import VariationalAutoEncoder
-from transforms import test_transforms, inverse_transforms
+from utils.transforms import test_transforms
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
