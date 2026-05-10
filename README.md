@@ -128,7 +128,17 @@ Often, the estimation over a large enough batch (M>100) while only sampling a si
 
 $$\mathcal{L}(q) = -KL(q(Z)) || p(Z)) + log(p(X=D|Z)$$
 
+##### Simplifying the loss to a practical loss function
+
+It is common to use gaussian distributions for modelling colored images, and bernoulli for black & white images. We can therefore simplify the KL term to:
+
+$$-D_{KL} (q_{\phi}(Z) \mathrel{\Vert} p_{\theta}(Z)) = \frac{1}{2} \sum_{j=1}^J (1 + log((\sigma^2)) - (\mu)^2 - (\sigma)^2)$$
+
+And the reconstruction term to:
+
+$$log(p(X=D|Z)) \approx \sum_{j=1}^J (x_{i}^{(j)} - \mu_{i}^{(j)})$$
+
 # References
-[1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
-[2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+[1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196) </br>
+[2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) </br>
 [3] [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
