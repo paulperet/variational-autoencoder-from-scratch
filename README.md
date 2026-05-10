@@ -85,6 +85,16 @@ KL(q(Z) || p(Z | X=D)) = \mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z|X=D)})] &=
 \end{align*}
 $$
 
+Lets denote $$\mathbb{E_{z \sim q(Z)}}[log(\frac{q(Z)}{p(Z, X=D)})]$$ by $$\mathcal{L}(q)$$
+
+We have $$KL = -\mathcal{L}(q) + log(p(X=D))$$
+
+We know that:
+- KL divergence is greater or equal to 0.
+- $$p(X=D)$$ is between 0 and 1 and the log of that is equal or less than 0.
+
+Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound.
+
 # References
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196)</br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
