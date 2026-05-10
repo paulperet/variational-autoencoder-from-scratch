@@ -25,7 +25,7 @@ Dataset requirements:
 - 224x224 or higher resolution
 - 10k+ samples is better
 
-Structure:
+Structure of the dataset:
 ```
 .
 ├── data
@@ -42,9 +42,27 @@ Structure:
 │   │       │    ├── image.png
 │   │       │    └── image.png
 │   │       └── class2
-│   │       │    ├── image.png
-│   │       │    └── image.png
+│   │            ├── image.png
+│   │            └── image.png
 ```
+
+Train a model:
+
+```bash
+python3 train.py [-h] [--model MODEL] --epochs EPOCHS --batch-size BATCH_SIZE --bottleneck-size BOTTLENECK_SIZE --output-file OUTPUT_FILE --dataset-folder DATASET_FOLDER [--learning-rate LEARNING_RATE] [--beta BETA]
+```
+
+Required arguments:
+- model: ae or vae for autoencoder, variational autoencoder
+- epochs: number of training epochs (full dataset pass)
+- batch_size: number of samples per batch
+- bottleneck size: dimensions of the latent space (lower -> more compression, blurry, higher -> better reconstruction, more details)
+- output file: name of the model to save
+- dataset folder: path to the dataset folder (for example data/dataset_example from above)
+
+Optional arguments:
+- learning rate: default 1e-3 for autoencoder and 1e-4 for VAE
+- beta: weights the KL loss for the VAE, can be necessary for finding a good balance between reconstruction and organised/meaningful latent space (disentanglement), see [4]
 
 
 ### The ResNet architecture
@@ -170,3 +188,4 @@ $$log(p(X=D|Z)) \approx \sum_{j=1}^J (x_{i}^{(j)} - \mu_{i}^{(j)})$$
 [1] [Progressive Growing of GANs for Improved Quality, Stability, and Variation](https://arxiv.org/abs/1710.10196) </br>
 [2] [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) </br>
 [3] [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
+[4] [beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework](https://openreview.net/forum?id=Sy2fzU9gl)
