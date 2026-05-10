@@ -71,7 +71,7 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    if args.model == "ae":
+    if args.model == "ae" or "autoencoder":
         train_autoencoder(
             epochs=args.epochs,
             batch_size=args.batch_size,
@@ -79,16 +79,7 @@ if __name__ == "__main__":
             output_file=args.output_file,
             dataset=args.dataset_folder,
         )
-    elif args.model == "sigma-vae":
-        train_sigma_vae(
-            epochs=args.epochs,
-            batch_size=args.batch_size,
-            bottleneck_size=args.bottleneck_size,
-            output_file=args.output_file,
-            dataset=args.dataset_folder,
-            learning_rate=args.learning_rate,
-        )
-    else:
+    if args.model == "ae":
         train_vae(
             epochs=args.epochs,
             batch_size=args.batch_size,

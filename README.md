@@ -21,6 +21,12 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Create two folders for storing the dataset and saving the checkpoints
+```bash
+mkdir data
+mkdir output
+```
+
 Dataset requirements:
 - 224x224 or higher resolution
 - 10k+ samples is better
