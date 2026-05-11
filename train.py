@@ -79,7 +79,7 @@ if __name__ == "__main__":
             output_file=args.output_file,
             dataset=args.dataset_folder,
         )
-    if args.model == "ae":
+    elif args.model == "vae":
         train_vae(
             epochs=args.epochs,
             batch_size=args.batch_size,
