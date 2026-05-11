@@ -71,7 +71,7 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    if args.model == "ae" or "autoencoder":
+    if args.model == "ae":
         train_autoencoder(
             epochs=args.epochs,
             batch_size=args.batch_size,
