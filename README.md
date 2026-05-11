@@ -79,31 +79,25 @@ To illustrate our experiments, we will use a ResNet-18 CNN [2] as our visual enc
 
 The decoder is a reversed version of the encoder, where the convolutional layers are replaced by transposed convolutional layers.
 
-#### Convolutional Layers
-
-#### Transposed Convolution Layers
-
 ### Autoencoders
 
 ### Variational Autoencoders
 
-#### Directed Graphical Models
+#### Directed Graphical Model
 
-Example of a graphical model:
+<p align="center">
+<img width="640" height="239" alt="dgm" src="https://github.com/user-attachments/assets/67da06e0-e0a4-4b00-83a5-744afe8e729b" />
+</p>
 
-[EXAMPLE]
+Observable nodes, from which we can access and measure data, are represented as shaded in directed graphical models. In contrast, latent nodes data are left unshaded and cannot be accessed or measured.
 
-Observable nodes, from which we can access and measure data, are represented as shaded in directed graphical models. In contrast, latent nodes data cannot be accessed or measured.
-
-Example of latent nodes:
-
-[EXAMPLE]
+We represent the problem as a directed graphical model with an observed node $$x$$ (e.g. a dataset D of images of faces) and a latent node $$z$$ (latent or compressed representation of the data e.g. hair color, face orientation). According to this model, we can express the marginal as $$p(x,z) = p(z)p(x \mid z)$$.
 
 #### Variational Inference
 
 ##### Intractible marginal
 
-We represent the problem as a directed graphical model with an observed node $$X$$ (e.g. a dataset D of images of faces) and a latent node $$Z$$ (latent or compressed representation of the data e.g. hair color, face orientation). The goal is to perform inference, or to be able to recover the distribution of $$X$$ when observing a latent distribution $$Z$$. We express this as the posterior and it can be computed using Bayes' Rule:
+The goal is to perform inference, or to be able to recover the distribution of $$X$$ when observing a latent distribution $$Z$$. We express this as the posterior and it can be computed using Bayes' Rule:
 
 $$p_{\theta} (z \mid x) = \frac{p_{\theta} (x \mid z)p_{\theta} (z)}{p_{\theta} (x)}$$
 
