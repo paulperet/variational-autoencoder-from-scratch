@@ -105,52 +105,52 @@ Example of latent nodes:
 
 We represent the problem as a directed graphical model with an observed node $$X$$ (e.g. a dataset D of images of faces) and a latent node $$Z$$ (latent or compressed representation of the data e.g. hair color, face orientation). The goal is to perform inference, or to be able to recover the distribution of $$X$$ when observing a latent distribution $$Z$$. We express this as the posterior and it can be computed using Bayes' Rule:
 
-$$P(Z \mid X) = \frac{P(X \mid Z)P(Z)}{P(X)}$$
+$$p_{\theta} (z \mid x) = \frac{p_{\theta} (x \mid z)p_{\theta} (Z)}{p_{\theta} (X)}$$
 
-While we can compute the joint distribution, the marginal $$P(X)$$ is intractible. It cannot be easily computed analytically and the computational cost of approximating the denominator scales exponentially according to the domain of latent variables.
+While we can compute the joint distribution, the marginal $$p_{\theta} (X)$$ is intractible. It cannot be easily computed analytically and the computational cost of approximating the denominator scales exponentially according to the domain of latent variables.
 
 So instead of computing the posterior directly, we choose a surrogate function (simpler function) to approximate the original distribution:
 
-$$q(Z \mid X) \approx p(Z|X)$$
+$$q_{\phi} (z \mid x) \approx p_{\theta} (z \mid x)$$
 
 ##### Finding a surrogate via optimization
 
 Thanks to this we can now express our problem as an optimization problem:
 
-$$q^*(Z \mid X) = argmin_{q(Z \mid X) \in Q} (D_{KL}(q(Z \mid X) \mathrel{\Vert} p(Z|X)$$
+$$q^*(Z \mid X) = argmin_{q_{\phi} (z \mid x) \in Q} (D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)$$
 
 The Kullback–Leibler divergence expresses the difference between two distributions. Our goal is to minimize this distance so that our surrogate function best capture the original distribution. But we still have a problem:
 
-$$D_{KL}(q(Z \mid X) \mathrel{\Vert} p(Z | X)) = \mathbb{E_{z \sim q(Z \mid X)}}[log(\frac{q(Z \mid X)}{p(Z|X)})] = \int_{z_{0}}...\int_{z_{D-1}}q(Z \mid X)log\frac{q(Z \mid X)}{p(Z|X)}$$
+$$D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (Z  \mid  X)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] = \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}$$
 
-We don't have the posterior $$P(Z|X)$$! We only have the joint $$P(Z, X)$$.
+We don't have the posterior $$p_{\theta} (z \mid x)$$! We only have the joint $$p_{\theta} (Z, X)$$.
 
 ##### Rearranging the terms to isolate the marginal
 
 $$
 \begin{align*}
-D_{KL}(q(Z \mid X) \mathrel{\Vert} p(Z | X)) = \mathbb{E_{z \sim q(Z \mid X)}}[log(\frac{q(Z \mid X)}{p(Z|X)})] &= \int_{z_{0}}...\int_{z_{D-1}}q(Z \mid X)log\frac{q(Z \mid X)}{p(Z|X)} \\
-&= \int_{z_{0}}...\int_{z_{D-1}}q(Z \mid X)log\frac{q(Z \mid X)p(X)}{p(Z,X)} \\
-&= \int_{z_{0}}...\int_{z_{D-1}}q(Z \mid X)log\frac{q(Z \mid X)}{p(Z,X)} \int_{z_{0}}...\int_{z_{D-1}}q(Z \mid X)log(p(X)) \\
-&= \mathbb{E_{z \sim q(Z \mid X)}}[log(\frac{q(Z \mid X)}{p(Z, X)})] + \mathbb{E_{z \sim q(Z \mid X)}}[log(p(X))] \\
-&= \mathbb{E_{z \sim q(Z \mid X)}}[log(\frac{q(Z \mid X)}{p(Z, X)})] + log(p(X)) \\
+D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (Z  \mid  X)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] &= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)} \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)p_{\theta} (X)}{p_{\theta} (Z,X)} \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z,X)} \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log(p_{\theta} (X)) \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z, X)})] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (X))] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z, X)})] + log(p_{\theta} (X)) \\
 \end{align*}
 $$
 
-Lets denote $$\mathbb{E_{z \sim q(Z \mid X)}}[log(\frac{q(Z \mid X)}{p(Z, X)})]$$ by $$\mathcal{L}(q)$$
+Lets denote $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z, X)})]$$ by $$\mathcal{L}(q)$$
 
-We have $$D_{KL} = -\mathcal{L}(q) + log(p(X))$$
+We have $$D_{KL} = -\mathcal{L}(q) + log(p_{\theta} (X))$$
 
 We know that:
 - KL divergence is greater or equal to 0.
-- $$p(X)$$ is between 0 and 1 and the log of that is equal or less than 0.
+- $$p_{\theta} (X)$$ is between 0 and 1 and the log of that is equal or less than 0.
 
-Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound. Therefore, because $$log(p(X))$$ is constant (our dataset), minimizing the KL divergence is equivalent to maximizing the ELBO:
+Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound. Therefore, because $$log(p_{\theta} (X))$$ is constant (our dataset), minimizing the KL divergence is equivalent to maximizing the ELBO:
 
 $$
 \begin{align*}
-q^* (Z) &= argmin_{q(Z \mid X) \in Q} (KL(q(Z \mid X) \mathrel{\Vert} p(Z|X))) \\
-&= argmax_{q(Z \mid X) \in Q} (\mathcal{L}(q))
+q^* (Z) &= argmin_{q_{\phi} (z \mid x) \in Q} (KL(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x))) \\
+&= argmax_{q_{\phi} (z \mid x) \in Q} (\mathcal{L}(q))
 \end{align*}
 $$
 
@@ -158,27 +158,27 @@ Expanding $$\mathcal{L}(q)$$, we have:
 
 $$
 \begin{align*}
-\mathcal{L}(q) &= \mathbb{E_{z \sim q(Z \mid X)}}[-log(q(Z \mid X)) + log(p(Z, X))] \\
-&= \mathbb{E_{z \sim q(Z \mid X)}}[-log(q(Z \mid X)) + log(p(X|Z)(p(Z))] \\
-&= \mathbb{E_{z \sim q(Z \mid X)}}[-log(q(Z \mid X)) + log(p(X|Z)) + log(p(Z)] \\
-&= \mathbb{E_{z \sim q(Z \mid X)}}[-log(q(Z \mid X)) + log(p(Z))] + \mathbb{E_{z \sim q(Z \mid X)}}[log(p(X|Z)] \\
-&= -D_{KL}(q(Z \mid X)) \mathrel{\Vert} p(Z)) + \mathbb{E_{z \sim q(Z \mid X)}}[log(p(X|Z)] \\
+\mathcal{L}(q) &= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (Z, X))] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (x \mid z)(p_{\theta} (Z))] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (x \mid z)) + log(p_{\theta} (Z)] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (Z))] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)] \\
+&= -D_{KL}(q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (Z)) + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)] \\
 \end{align*}
 $$
 
 ##### Estimating the gradient
 
-In practice, we will choose q(Z \mid X) and p(Z) to be normal or bernoulli distributions, depending on our data. This means that we can easily integrate the KL term analytically. Therefore, we only need to estimate the reconstruction term $$\mathbb{E_{z \sim q(Z \mid X)}}[log(p(X|Z)]$$. We can use Monte-Carlo sampling to find a good estimate:
+In practice, we will choose q_{\phi} (z \mid x) and p_{\theta} (Z) to be normal or bernoulli distributions, depending on our data. This means that we can easily integrate the KL term analytically. Therefore, we only need to estimate the reconstruction term $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)]$$. We can use Monte-Carlo sampling to find a good estimate:
 
-$$\mathcal{L}(q) = -KL(q(Z \mid X)) \mathrel{\Vert} p(Z)) + \frac{1}{L} \sum_{l=0}^L log(p(X|Z)$$
+$$\mathcal{L}(q) = -D_{KL} (q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (Z)) + \frac{1}{L} \sum_{l=0}^L log(p_{\theta} (x \mid z)$$
 
 We calculate the gradient over a minibatch:
 
 $$\mathcal{L}(\theta, \phi; X) \approx \mathcal{L^M}(\theta, \phi; X^M) = \frac{N}{M} \sum_{i=1}^M \mathcal{L}(\theta, \phi; x^{(i)})$$
 
-Often, the estimation over a large enough batch (M>100) while only sampling a single $$p(X|Z)$$ yields a sufficiently good estimate, so we can use this expression in practice:
+Often, the estimation over a large enough batch (M>100) while only sampling a single $$p_{\theta} (x \mid z)$$ yields a sufficiently good estimate, so we can use this expression in practice:
 
-$$\mathcal{L}(q) = -D_{KL}(q(Z \mid X)) \mathrel{\Vert} p(Z)) + log(p(X|Z)$$
+$$\mathcal{L}(q) = -D_{KL}(q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (Z)) + log(p_{\theta} (x \mid z)$$
 
 ##### Simplifying the loss to a practical loss function
 
@@ -188,7 +188,7 @@ $$-D_{KL} (q_{\phi}(Z) \mathrel{\Vert} p_{\theta}(Z)) = \frac{1}{2} \sum_{j=1}^J
 
 And the reconstruction term to:
 
-$$log(p(X|Z)) \approx \sum_{j=1}^J (x_{i}^{(j)} - \mu_{i}^{(j)})$$
+$$log(p_{\theta} (x \mid z)) \approx \sum_{j=1}^J (x_{i}^{(j)} - \mu_{i}^{(j)})$$
 
 # References
 Research papers:
