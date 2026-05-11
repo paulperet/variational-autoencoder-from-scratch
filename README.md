@@ -105,7 +105,7 @@ Example of latent nodes:
 
 We represent the problem as a directed graphical model with an observed node $$X$$ (e.g. a dataset D of images of faces) and a latent node $$Z$$ (latent or compressed representation of the data e.g. hair color, face orientation). The goal is to perform inference, or to be able to recover the distribution of $$X$$ when observing a latent distribution $$Z$$. We express this as the posterior and it can be computed using Bayes' Rule:
 
-$$p_{\theta} (z \mid x) = \frac{p_{\theta} (x \mid z)p_{\theta} (Z)}{p_{\theta} (X)}$$
+$$p_{\theta} (z \mid x) = \frac{p_{\theta} (x \mid z)p_{\theta} (z)}{p_{\theta} (x)}$$
 
 While we can compute the joint distribution, the marginal $$p_{\theta} (X)$$ is intractible. It cannot be easily computed analytically and the computational cost of approximating the denominator scales exponentially according to the domain of latent variables.
 
@@ -117,11 +117,11 @@ $$q_{\phi} (z \mid x) \approx p_{\theta} (z \mid x)$$
 
 Thanks to this we can now express our problem as an optimization problem:
 
-$$q^*(Z \mid X) = argmin_{q_{\phi} (z \mid x) \in Q} (D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)$$
+$$q^*(Z \mid x) = argmin_{q_{\phi} (z \mid x) \in Q} (D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)$$
 
 The Kullback–Leibler divergence expresses the difference between two distributions. Our goal is to minimize this distance so that our surrogate function best capture the original distribution. But we still have a problem:
 
-$$D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (Z  \mid  X)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] = \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}$$
+$$D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] = \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}$$
 
 We don't have the posterior $$p_{\theta} (z \mid x)$$! We only have the joint $$p_{\theta} (Z, X)$$.
 
@@ -129,17 +129,17 @@ We don't have the posterior $$p_{\theta} (z \mid x)$$! We only have the joint $$
 
 $$
 \begin{align*}
-D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (Z  \mid  X)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] &= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)} \\
-&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)p_{\theta} (X)}{p_{\theta} (Z,X)} \\
+D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] &= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)} \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)p_{\theta} (X)}{p_{\theta} (z,x)} \\
 &= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z,X)} \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log(p_{\theta} (X)) \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z, X)})] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (X))] \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z, X)})] + log(p_{\theta} (X)) \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)})] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x))] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)})] + log(p_{\theta} (x)) \\
 \end{align*}
 $$
 
-Lets denote $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z, X)})]$$ by $$\mathcal{L}(q)$$
+Lets denote $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)})]$$ by $$\mathcal{L}(q)$$
 
-We have $$D_{KL} = -\mathcal{L}(q) + log(p_{\theta} (X))$$
+We have $$D_{KL} = -\mathcal{L}(q) + log(p_{\theta} (x))$$
 
 We know that:
 - KL divergence is greater or equal to 0.
@@ -149,7 +149,7 @@ Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to
 
 $$
 \begin{align*}
-q^* (Z) &= argmin_{q_{\phi} (z \mid x) \in Q} (KL(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x))) \\
+q^* (z) &= argmin_{q_{\phi} (z \mid x) \in Q} (KL(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x))) \\
 &= argmax_{q_{\phi} (z \mid x) \in Q} (\mathcal{L}(q))
 \end{align*}
 $$
@@ -158,11 +158,11 @@ Expanding $$\mathcal{L}(q)$$, we have:
 
 $$
 \begin{align*}
-\mathcal{L}(q) &= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (Z, X))] \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (x \mid z)(p_{\theta} (Z))] \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (x \mid z)) + log(p_{\theta} (Z)] \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (Z))] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)] \\
-&= -D_{KL}(q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (Z)) + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)] \\
+\mathcal{L}(q) &= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (z, x))] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (x \mid z)(p_{\theta} (z))] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (x \mid z)) + log(p_{\theta} (z)] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[-log(q_{\phi} (z \mid x)) + log(p_{\theta} (z))] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)] \\
+&= -D_{KL}(q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (z)) + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)] \\
 \end{align*}
 $$
 
@@ -170,7 +170,7 @@ $$
 
 In practice, we will choose q_{\phi} (z \mid x) and p_{\theta} (Z) to be normal or bernoulli distributions, depending on our data. This means that we can easily integrate the KL term analytically. Therefore, we only need to estimate the reconstruction term $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)]$$. We can use Monte-Carlo sampling to find a good estimate:
 
-$$\mathcal{L}(q) = -D_{KL} (q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (Z)) + \frac{1}{L} \sum_{l=0}^L log(p_{\theta} (x \mid z)$$
+$$\mathcal{L}(q) = -D_{KL} (q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (z)) + \frac{1}{L} \sum_{l=0}^L log(p_{\theta} (x \mid z)$$
 
 We calculate the gradient over a minibatch:
 
@@ -178,13 +178,13 @@ $$\mathcal{L}(\theta, \phi; X) \approx \mathcal{L^M}(\theta, \phi; X^M) = \frac{
 
 Often, the estimation over a large enough batch (M>100) while only sampling a single $$p_{\theta} (x \mid z)$$ yields a sufficiently good estimate, so we can use this expression in practice:
 
-$$\mathcal{L}(q) = -D_{KL}(q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (Z)) + log(p_{\theta} (x \mid z)$$
+$$\mathcal{L}(q) = -D_{KL}(q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (z)) + log(p_{\theta} (x \mid z)$$
 
 ##### Simplifying the loss to a practical loss function
 
 It is common to use gaussian distributions for modelling colored images, and bernoulli for black & white images. We can therefore simplify the KL term to:
 
-$$-D_{KL} (q_{\phi}(Z) \mathrel{\Vert} p_{\theta}(Z)) = \frac{1}{2} \sum_{j=1}^J (1 + log((\sigma^2)) - (\mu)^2 - (\sigma)^2)$$
+$$-D_{KL} (q_{\phi}(z) \mathrel{\Vert} p_{\theta}(z)) = \frac{1}{2} \sum_{j=1}^J (1 + log((\sigma^2)) - (\mu)^2 - (\sigma)^2)$$
 
 And the reconstruction term to:
 
