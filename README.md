@@ -101,7 +101,7 @@ The goal is to perform inference, or to be able to recover the distribution of $
 
 $$p_{\theta} (z \mid x) = \frac{p_{\theta} (x \mid z)p_{\theta} (z)}{p_{\theta} (x)}$$
 
-While we can compute the joint distribution, the marginal $$p_{\theta} (X)$$ is intractible. It cannot be easily computed analytically and the computational cost of approximating the denominator scales exponentially according to the domain of latent variables.
+While we can compute the joint distribution, the marginal $$p_{\theta} (x)$$ is intractible. It cannot be easily computed analytically and the computational cost of approximating the denominator scales exponentially according to the domain of latent variables.
 
 So instead of computing the posterior directly, we choose a surrogate function (simpler function) to approximate the original distribution:
 
@@ -111,35 +111,38 @@ $$q_{\phi} (z \mid x) \approx p_{\theta} (z \mid x)$$
 
 Thanks to this we can now express our problem as an optimization problem:
 
-$$q^*(Z \mid x) = argmin_{q_{\phi} (z \mid x) \in Q} (D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)$$
+$$q^*(z \mid x) = argmin_{q_{\phi} (z \mid x) \in Q} (D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x))$$
 
 The Kullback–Leibler divergence expresses the difference between two distributions. Our goal is to minimize this distance so that our surrogate function best capture the original distribution. But we still have a problem:
 
-$$D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] = \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}$$
+$$D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}\right)\right] = \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}\right)$$
 
-We don't have the posterior $$p_{\theta} (z \mid x)$$! We only have the joint $$p_{\theta} (Z, X)$$.
+We don't have the posterior $$p_{\theta} (z \mid x)$$! We only have the joint $$p_{\theta} (z, x)$$.
 
 ##### Rearranging the terms to isolate the marginal
 
 $$
 \begin{align*}
-D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)) = \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)})] &= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)} \\
-&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)p_{\theta} (X)}{p_{\theta} (z,x)} \\
-&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\frac{q_{\phi} (z \mid x)}{p_{\theta} (Z,X)} \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log(p_{\theta} (X)) \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)})] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x))] \\
-&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)})] + log(p_{\theta} (x)) \\
+D_{KL}(q_{\phi} (z \mid x) \mathrel{\Vert} p_{\theta} (z \mid x)) 
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}\right)\right] \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z \mid x)}\right) \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\left(\frac{q_{\phi} (z \mid x)p_{\theta} (x)}{p_{\theta} (z,x)}\right) \\
+&= \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z,x)}\right) \int_{z_{0}}...\int_{z_{D-1}}q_{\phi} (z \mid x)log\left(p_{\theta} (x))\right) \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)}\right)\right] + \mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log(p_{\theta} (x))\right] \\
+&= \mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log\left(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)}\right)\right] + log(p_{\theta} (x)) \\
+&= -\mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log\left(\frac{p_{\theta} (z, x)}{q_{\phi} (z \mid x)}\right)\right] + log(p_{\theta} (x)) \\
 \end{align*}
 $$
 
-Lets denote $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(\frac{q_{\phi} (z \mid x)}{p_{\theta} (z, x)})]$$ by $$\mathcal{L}(q)$$
+Lets denote $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}\left[log\left(\frac{p_{\theta} (z, x)}{q_{\phi} (z \mid x)}\right)\right]$$ by $$\mathcal{L}(q)$$
 
 We have $$D_{KL} = -\mathcal{L}(q) + log(p_{\theta} (x))$$
 
 We know that:
 - KL divergence is greater or equal to 0.
-- $$p_{\theta} (X)$$ is between 0 and 1 and the log of that is equal or less than 0.
+- $$p_{\theta} (x)$$ is between 0 and 1 and the log of that is equal or less than 0.
 
-Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound. Therefore, because $$log(p_{\theta} (X))$$ is constant (our dataset), minimizing the KL divergence is equivalent to maximizing the ELBO:
+Hence, to fullfill these conditions, we can infer that $$\mathcal{L}(q)$$ has to be negative, and is named the evidence lower bound. Therefore, because $$log(p_{\theta} (x))$$ is constant (our dataset), minimizing the KL divergence is equivalent to maximizing the ELBO:
 
 $$
 \begin{align*}
@@ -162,13 +165,13 @@ $$
 
 ##### Estimating the gradient
 
-In practice, we will choose q_{\phi} (z \mid x) and p_{\theta} (Z) to be normal or bernoulli distributions, depending on our data. This means that we can easily integrate the KL term analytically. Therefore, we only need to estimate the reconstruction term $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)]$$. We can use Monte-Carlo sampling to find a good estimate:
+In practice, we will choose $$q_{\phi} (z \mid x)$$ and $$p_{\theta} (Z)$$ to be normal or bernoulli distributions, depending on our data. This means that we can easily integrate the KL term analytically. Therefore, we only need to estimate the reconstruction term $$\mathbb{E_{z \sim q_{\phi} (z \mid x)}}[log(p_{\theta} (x \mid z)]$$. We can use Monte-Carlo sampling to find a good estimate:
 
 $$\mathcal{L}(q) = -D_{KL} (q_{\phi} (z \mid x)) \mathrel{\Vert} p_{\theta} (z)) + \frac{1}{L} \sum_{l=0}^L log(p_{\theta} (x \mid z)$$
 
 We calculate the gradient over a minibatch:
 
-$$\mathcal{L}(\theta, \phi; X) \approx \mathcal{L^M}(\theta, \phi; X^M) = \frac{N}{M} \sum_{i=1}^M \mathcal{L}(\theta, \phi; x^{(i)})$$
+$$\mathcal{L}(\theta, \phi; x) \approx \mathcal{L^M}(\theta, \phi; X^M) = \frac{N}{M} \sum_{i=1}^M \mathcal{L}(\theta, \phi; x^{(i)})$$
 
 Often, the estimation over a large enough batch (M>100) while only sampling a single $$p_{\theta} (x \mid z)$$ yields a sufficiently good estimate, so we can use this expression in practice:
 
