@@ -39,7 +39,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
     scaler = torch.amp.GradScaler("cuda" ,enabled=use_amp)
     scheduler = ReduceLROnPlateau(optimizer, factor=1e-1, patience=5, threshold=1e-1)
 
-    reconstruction_loss = nn.MSELoss(reduction='none')
+    reconstruction_loss = nn.MSELoss()
     min_val_loss = math.inf
 
     # Dataset & DataLoader Creation
@@ -67,7 +67,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
                 # Pass our input through the model to get our output
                 outputs = model(inputs)
 
-                loss = reconstruction_loss(outputs, inputs).sum([1,2,3]).mean()
+                loss = reconstruction_loss(outputs, inputs)
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -88,7 +88,7 @@ def train_autoencoder(epochs, batch_size, bottleneck_size, output_file, dataset)
                 labels = labels.to(device)
                 
                 outputs = model(inputs)
-                loss = reconstruction_loss(outputs, inputs).sum([1,2,3]).mean()
+                loss = reconstruction_loss(outputs, inputs)
 
                 val_total_loss += loss.item()
                 
