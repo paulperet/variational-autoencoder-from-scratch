@@ -1,4 +1,4 @@
-# Visual Encoders From Scratch
+# Variational Autoencoder From Scratch
 
 This repository explores the design, training, experiments and theorical foundations of auto-encoders and variational autoencoders (VAE). The goal is to show how the model complexity, dataset and training hyperparameters impact the model's performance. In addition, a clear and intuitive derivation of the ELBO is featured to explain the theorical grounding of variational encoders. 
 
