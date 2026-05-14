@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from training_scripts.train_autoencoder import train_autoencoder
 from training_scripts.train_vae import train_vae
+from training_scripts.train_resnet import train_resnet
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -88,4 +89,13 @@ if __name__ == "__main__":
             dataset=args.dataset_folder,
             learning_rate=args.learning_rate,
             beta=args.beta,
+        )
+    
+    elif args.model == "resnet":
+        train_resnet(
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            output_file=args.output_file,
+            dataset=args.dataset_folder,
+            learning_rate=args.learning_rate,
         )
